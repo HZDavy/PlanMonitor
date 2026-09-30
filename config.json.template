@@ -1,0 +1,19 @@
+{
+  "_comment": "火山方舟 Coding Plan 监控助手 - 配置文件模板. 把 ak / sk 替换成你的真实 IAM Access Key 和 Secret Key. 程序首次运行会自动生成 config.json (含你的真实密钥), 本文件只是占位模板, 不会被程序读取.",
+
+  "ak": "AKLTxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "sk": "SECRETxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+
+  "always_on_top": true,
+  "screen_index": -1,
+  "geometry": {"x": 60, "y": 60},
+
+  "_how_to_get_credentials": {
+    "step1": "登录火山引擎控制台 https://console.volcengine.com/",
+    "step2": "顶部导航 -> 访问控制 -> 用户 -> API 访问密钥",
+    "step3": "新建密钥 (或使用已有密钥)",
+    "step4": "复制 Access Key ID (以 AKLT 开头) 到 ak 字段",
+    "step5": "复制 Secret Access Key 到 sk 字段",
+    "step6": "删除所有带 _comment / _how_to_get_credentials 的字段, 保存为 config.json (放在 exe 同目录)"
+  }
+}

@@ -1,0 +1,41 @@
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# PyInstaller
+build/
+dist/
+*.spec
+
+# 用户的本地配置 (含 AK/SK 真实密钥)
+config.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# 调试 / 临时
+*.log
+*.png
+!assets/*.png
+!docs/*.png
+!release/assets/*.png
+*.tmp
+_*.py
+__*.png
+*.err
+
+# 用户本地辅助脚本
+_wsize.ps1
+_move_*.ps1
+_quit_*.ps1
+_clamp_*.ps1
+_diag*
+_ark_*
+
+# 大文件: exe 直接放 release/, 但源码仓不要
+CodingPlanMonitor.exe

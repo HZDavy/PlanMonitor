@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Coding Plan 监控助手 · 火山方舟用量浮窗</title>
+<meta name="description" content="一个常驻 Windows 桌面角落的小工具, 实时显示火山方舟 Coding Plan / Agent Plan 的剩余用量。内存占用 8 MB, 完全开源。">
+<meta name="keywords" content="Coding Plan, 火山方舟, 监控, 用量, PyQt5, 桌面浮窗">
+<link rel="icon" type="image/png" href="assets/logo.png">
+<style>
+:root {
+  --bg: #0e0f12;
+  --bg2: #16181d;
+  --bg3: #1d2026;
+  --fg: #f5f6f8;
+  --fg2: #c8ccd4;
+  --fg3: #8a8f99;
+  --green: #2ed47a;
+  --red: #ff5050;
+  --blue: #5b8cff;
+  --radius: 14px;
+  --maxw: 980px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 15px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+a { color: var(--blue); text-decoration: none; transition: color .2s; }
+a:hover { color: #7faaff; }
+img { max-width: 100%; display: block; }
+
+/* ============== NAV ============== */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(14, 15, 18, 0.85);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding: 14px 32px;
+}
+nav .inner {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+nav img.logo { width: 32px; height: 32px; }
+nav .brand { font-size: 16px; font-weight: 600; letter-spacing: 0.3px; }
+nav .brand span { color: var(--green); margin-left: 6px; font-size: 13px; }
+nav .links { margin-left: auto; display: flex; gap: 22px; font-size: 14px; }
+nav .links a { color: var(--fg2); }
+nav .links a:hover { color: var(--fg); }
+
+/* ============== HERO ============== */
+.hero {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 80px 32px 60px;
+  text-align: center;
+}
+.hero .icon {
+  width: 88px;
+  height: 88px;
+  margin: 0 auto 24px;
+  display: block;
+  filter: drop-shadow(0 8px 24px rgba(91, 140, 255, 0.3));
+  animation: float 6s ease-in-out infinite;
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.hero h1 {
+  font-size: 48px;
+  font-weight: 700;
+  letter-spacing: -1px;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, #ffffff 0%, #c8ccd4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero p.lead {
+  font-size: 18px;
+  color: var(--fg2);
+  margin-bottom: 36px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.hero .badges {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 40px;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: var(--bg2);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 100px;
+  font-size: 12px;
+  color: var(--fg2);
+}
+.badge.green { color: var(--green); border-color: rgba(46, 212, 122, 0.3); }
+.badge.blue { color: var(--blue); border-color: rgba(91, 140, 255, 0.3); }
+
+.btn-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  transition: all .2s;
+  cursor: pointer;
+  border: none;
+}
+.btn.primary {
+  background: linear-gradient(135deg, #5b8cff 0%, #4070e8 100%);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(91, 140, 255, 0.3);
+}
+.btn.primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(91, 140, 255, 0.4); color: #fff; }
+.btn.secondary {
+  background: var(--bg2);
+  color: var(--fg);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.btn.secondary:hover { background: var(--bg3); border-color: rgba(255,255,255,0.2); color: var(--fg); }
+
+/* ============== SCREENSHOT ============== */
+.shot {
+  max-width: var(--maxw);
+  margin: 20px auto 60px;
+  padding: 0 32px;
+}
+.shot-frame {
+  background: var(--bg2);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.4);
+}
+.shot-frame img {
+  border-radius: 8px;
+  width: 100%;
+}
+.shot-caption {
+  text-align: center;
+  color: var(--fg3);
+  font-size: 13px;
+  margin-top: 14px;
+}
+
+/* ============== SECTIONS ============== */
+section {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 60px 32px;
+}
+section h2 {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+}
+section .sub {
+  color: var(--fg3);
+  font-size: 15px;
+  margin-bottom: 36px;
+}
+
+/* ============== FEATURES GRID ============== */
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+.feature {
+  background: var(--bg2);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--radius);
+  padding: 24px;
+  transition: all .2s;
+}
+.feature:hover {
+  border-color: rgba(91, 140, 255, 0.3);
+  transform: translateY(-3px);
+}
+.feature .ico {
+  width: 40px;
+  height: 40px;
+  background: rgba(91, 140, 255, 0.12);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+  font-size: 20px;
+}
+.feature h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+.feature p { color: var(--fg2); font-size: 14px; line-height: 1.6; }
+
+/* ============== STATS ============== */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 20px;
+  margin-top: 40px;
+}
+.stat {
+  text-align: center;
+  padding: 20px;
+  background: var(--bg2);
+  border-radius: var(--radius);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.stat .v {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--blue);
+  margin-bottom: 4px;
+}
+.stat .l {
+  font-size: 13px;
+  color: var(--fg3);
+}
+
+/* ============== STEPS ============== */
+.steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+.step {
+  background: var(--bg2);
+  border-radius: var(--radius);
+  padding: 20px;
+  border: 1px solid rgba(255,255,255,0.06);
+  position: relative;
+}
+.step .n {
+  position: absolute;
+  top: -12px;
+  left: 16px;
+  background: var(--blue);
+  color: #fff;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+}
+.step h4 { font-size: 15px; font-weight: 600; margin: 8px 0 6px; }
+.step p { color: var(--fg2); font-size: 13px; }
+.step code {
+  background: var(--bg3);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #ffd580;
+  font-family: "SF Mono", Consolas, monospace;
+}
+
+/* ============== CODE BLOCK ============== */
+pre {
+  background: var(--bg2);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--radius);
+  padding: 18px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.6;
+  font-family: "SF Mono", Consolas, monospace;
+}
+pre code { color: var(--fg2); }
+
+/* ============== FOOTER ============== */
+footer {
+  border-top: 1px solid rgba(255,255,255,0.06);
+  margin-top: 80px;
+  padding: 40px 32px;
+  text-align: center;
+  color: var(--fg3);
+  font-size: 13px;
+}
+footer a { color: var(--fg2); }
+footer .heart { color: var(--red); }
+
+/* ============== RESPONSIVE ============== */
+@media (max-width: 640px) {
+  .hero { padding: 60px 20px 40px; }
+  .hero h1 { font-size: 36px; }
+  .hero p.lead { font-size: 16px; }
+  section { padding: 40px 20px; }
+  section h2 { font-size: 26px; }
+  nav .links { display: none; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="inner">
+    <img class="logo" src="assets/logo.png" alt="logo">
+    <div class="brand">Coding Plan 监控助手<span>已连接</span></div>
+    <div class="links">
+      <a href="#features">功能</a>
+      <a href="#install">安装</a>
+      <a href="#usage">使用</a>
+      <a href="https://github.com/USER/coding-plan-monitor" target="_blank">GitHub</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <img class="icon" src="assets/logo.png" alt="logo">
+  <h1>常驻桌面角落<br>实时掌握 Coding Plan</h1>
+  <p class="lead">一个 8 MB 内存的 Windows 浮窗,每 30 秒自动拉一次火山方舟 API,大字号显示剩余用量和下次重置倒计时。</p>
+
+  <div class="badges">
+    <span class="badge green">● 已开源</span>
+    <span class="badge">Python 3.10+</span>
+    <span class="badge">PyQt5</span>
+    <span class="badge blue">单文件 exe</span>
+  </div>
+
+  <div class="btn-row">
+    <a class="btn primary" href="https://github.com/USER/coding-plan-monitor/releases" target="_blank">
+      ↓ 下载 CodingPlanMonitor.exe
+    </a>
+    <a class="btn secondary" href="https://github.com/USER/coding-plan-monitor" target="_blank">
+      查看源码 →
+    </a>
+  </div>
+</section>
+
+<div class="shot">
+  <div class="shot-frame">
+    <img src="assets/preview.png" alt="应用截图" onerror="this.style.display='none'">
+    <div class="shot-caption">深色玻璃风浮窗,常驻桌面右下角,不抢焦点</div>
+  </div>
+</div>
+
+<section id="features">
+  <h2>核心功能</h2>
+  <p class="sub">一个工具,搞定 Coding Plan 的全部可视化需求</p>
+
+  <div class="features">
+    <div class="feature">
+      <div class="ico">⏱</div>
+      <h3>三档时间窗</h3>
+      <p>近 5 小时 / 近一周 / 近一月 三个滚动窗口同时显示,大字号百分比 + 剩余 token 数。</p>
+    </div>
+    <div class="feature">
+      <div class="ico">🔄</div>
+      <h3>30 秒自动刷新</h3>
+      <p>后台 QTimer 每 30 秒调一次官方 API,不卡前台,刷新频率可在配置里改。</p>
+    </div>
+    <div class="feature">
+      <div class="ico">⏰</div>
+      <h3>重置倒计时</h3>
+      <p>每张卡片右侧显示"X 小时 Y 分后重置",再也不用点开控制台看还剩多少。</p>
+    </div>
+    <div class="feature">
+      <div class="ico">📌</div>
+      <h3>窗口置顶</h3>
+      <p>可一键置顶,不抢鼠标焦点,关闭主窗后常驻系统托盘,右键呼出。</p>
+    </div>
+    <div class="feature">
+      <div class="ico">🎨</div>
+      <h3>深色玻璃风</h3>
+      <p>vivo OriginOS 设计语言,黑底 + 毛玻璃 + 巨字 + 极致留白,适合长时间盯屏幕。</p>
+    </div>
+    <div class="feature">
+      <div class="ico">🔐</div>
+      <h3>本地凭证</h3>
+      <p>AK / SK 只存在本地 config.json,不联网不上传任何第三方服务器。</p>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="v">8 MB</div><div class="l">运行内存</div></div>
+    <div class="stat"><div class="v">&lt;1s</div><div class="l">冷启动时间</div></div>
+    <div class="stat"><div class="v">42 MB</div><div class="l">exe 体积</div></div>
+    <div class="stat"><div class="v">0</div><div class="l">第三方依赖</div></div>
+  </div>
+</section>
+
+<section id="install">
+  <h2>3 步上手</h2>
+  <p class="sub">下载 → 填 AK/SK → 双击运行,完事</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="n">1</div>
+      <h4>下载 exe</h4>
+      <p>去 <a href="https://github.com/USER/coding-plan-monitor/releases" target="_blank">Releases</a> 页面下载最新版 <code>CodingPlanMonitor.exe</code></p>
+    </div>
+    <div class="step">
+      <div class="n">2</div>
+      <h4>填 AK / SK</h4>
+      <p>首次运行会弹窗,在火山引擎控制台 → 访问控制 → API 访问密钥 创建并填入</p>
+    </div>
+    <div class="step">
+      <div class="n">3</div>
+      <h4>最小化到托盘</h4>
+      <p>关闭主窗后常驻任务栏托盘,右键唤出菜单或刷新数据</p>
+    </div>
+  </div>
+</section>
+
+<section id="usage">
+  <h2>开发者编译</h2>
+  <p class="sub">纯 Python + PyQt5,源码 100% 可读</p>
+
+<pre><code>git clone https://github.com/USER/coding-plan-monitor.git
+cd coding-plan-monitor
+pip install PyQt5 requests pyinstaller
+pyinstaller CodingPlanMonitor.spec --noconfirm
+# 生成 dist/CodingPlanMonitor.exe</code></pre>
+</section>
+
+<section>
+  <h2>FAQ</h2>
+  <p class="sub">常见疑问</p>
+
+  <div class="features">
+    <div class="feature">
+      <h3>会泄露我的 AK/SK 吗?</h3>
+      <p>不会。本工具所有网络请求都直接发到 <code>ark.cn-beijing.volcengineapi.com</code>(火山方舟官方 API 域名),不经过任何第三方中转。</p>
+    </div>
+    <div class="feature">
+      <h3>为什么体积 42 MB?</h3>
+      <p>全部来自 PyQt5 自带的 Qt 运行库(launcher + GUI 引擎)。程序本身代码 &lt; 100 KB,其他没有任何依赖。</p>
+    </div>
+    <div class="feature">
+      <h3>支持多屏幕 / 高 DPI 吗?</h3>
+      <p>支持。窗口锁宽 560px,跨屏位置自动记忆,1.75x / 2.0x 高 DPI 屏已测试通过。</p>
+    </div>
+    <div class="feature">
+      <h3>可以改成 Agent Plan 吗?</h3>
+      <p>API 路径一样,只需在配置里切换 action 参数(代码预留了扩展位)。</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>MIT License · <a href="https://github.com/USER/coding-plan-monitor" target="_blank">GitHub</a> · <a href="https://github.com/USER/coding-plan-monitor/issues" target="_blank">提 issue</a></p>
+  <p style="margin-top: 8px; opacity: 0.6;">Made with <span class="heart">♥</span> by Coding Plan Monitor Authors</p>
+</footer>
+
+</body>
+</html>
