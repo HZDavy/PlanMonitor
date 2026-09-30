@@ -38,4 +38,4 @@ _diag*
 _ark_*
 
 # 大文件: exe 直接放 release/, 但源码仓不要
-CodingPlanMonitor.exe
+CodingPlanMonitor.exeCodingPlanMonitor.exe
