@@ -1,4 +1,4 @@
-# Coding Plan 监控助手
+﻿# Coding Plan 监控助手
 
 > 一个常驻桌面角落的小工具,实时显示你在火山方舟 Coding Plan / Agent Plan 的剩余用量。
 
