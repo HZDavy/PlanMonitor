@@ -1,321 +1,640 @@
 <!DOCTYPE html>
+
 <html lang="zh-CN">
+
 <head>
+
   <meta charset="UTF-8">
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Coding Plan Monitor - 火山方舟 Coding Plan 𨀔𱎃</title>
-  <meta name="description" content="火山方舟 Coding Plan 𠌓𷌩𒊉𩦒𷌧𙦂𠈕𦚄𒊐 𦐒𢌠𶠖𴢒 AK/SK 𧜄𙦁𱅣𤌠𰍀𰀅𱘹"/>
+
+  <title>Coding Plan Monitor · 火山方舟 Coding Plan 浮窗</title>
+
+  <meta name="description" content="火山方舟 Coding Plan 浮窗 · 本地运行 · AK/SK 永不离开你的电脑"/>
+
   <meta name="theme-color" content="#0a0e1a">
-  <meta property="og:title" content="Coding Plan Monitor">
-  <meta property="og:description" content="𰑵𰔤𠌓𷌩"/>
+
+  <meta property="og:title" content="Coding Plan Monitor · 火山方舟 Coding Plan 浮窗">
+
+  <meta property="og:description" content="火山方舟 Coding Plan 浮窗 · 本地运行 · AK/SK 永不离开你的电脑"/>
+
   <meta property="og:type" content="website">
+
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+
   <link rel="stylesheet" href="assets/style.css">
+
 </head>
+
 <body>
+
   <div class="bg-grid" aria-hidden="true"></div>
+
   <div class="bg-glow bg-glow-1" aria-hidden="true"></div>
+
   <div class="bg-glow bg-glow-2" aria-hidden="true"></div>
 
+
+
   <nav class="nav">
+
     <div class="nav-inner">
+
       <a class="brand" href="#top">
+
         <img class="brand-mark" src="favicon.ico" alt="">
+
         <span class="brand-name">Coding Plan Monitor</span>
+
       </a>
+
       <ul class="nav-links">
+
         <li><a href="#features">功能</a></li>
+
         <li><a href="#workflow">上手</a></li>
+
         <li><a href="#security">安全</a></li>
+
         <li><a href="#faq">常见问题</a></li>
+
         <li><a href="#download">下载</a></li>
+
       </ul>
+
       <div class="nav-cta">
+
         <a class="btn btn-ghost btn-sm" href="https://github.com/HZDavy/coding-plan-monitor" target="_blank" rel="noopener">GitHub</a>
+
         <a class="btn btn-primary btn-sm" href="#download">下载</a>
+
       </div>
+
     </div>
+
   </nav>
+
+
 
   <main id="main">
 
+
+
   <header class="hero">
+
     <div class="hero-inner">
+
       <div class="hero-copy">
+
         <div class="hero-eyebrow">
+
           <span class="pulse-dot"></span>
+
           <span>火山方舟 Coding Plan</span>
+
           <span class="hero-eyebrow-sep">·</span>
+
           <span>已连接</span>
+
         </div>
+
         <h1 class="hero-title">
-          𰑵𰔤𠌓𷌩,<br>
-          𲞀𦅙𦍶𤈓,<br>
-          𦅙𶠤𡌢𠄂𡔇𤆀</h1>
-        <p class="hero-sub">火山方舟 Coding Plan 𨀔𱎃𒊈𥄅𠆗𠆗𰍀 PyQt5 𦜀𸝔𨀔𱎃,𣑔𦄂𡔖𦄂𣕶𦀲𠌓𷌩𒊉𩦒𷌧𙦂𠈕𦚄𒊐𦐒𢌠𶠖𴢒,AK/SK 𧜄𙦁𠉐𠦆𰀅𱘹𒊐</p>
+          <span class="hero-line">看着 <span class="accent">余额消失</span>,</span><br>
+          <span class="hero-line">不是 <span class="accent">月底才反应过来</span>,</span><br>
+          <span class="hero-line">是 <span class="accent">随时都看着</span>。</span>
+        </h1>
+
+        <p class="hero-sub">火山方舟 Coding Plan 浮窗 · 本地运行 · AK/SK 永不离开你的电脑。实时显示本月余额、今日使用、本周预估、本月预估,以及多款模型的价格表。再也不用月底对着账单发呆。</p>
+
         <div class="hero-stats">
+
           <div class="stat-num"><div class="stat-num">3</div><div class="stat-label">个状态可选</div></div>
+
           <div class="stat-num"><div class="stat-num">30s</div><div class="stat-label">定位刷新</div></div>
+
           <div class="stat-num"><div class="stat-num">0</div><div class="stat-label">上传</div></div>
+
         </div>
+
         <div class="hero-cta">
+
           <a class="btn btn-primary" href="#download">
+
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12m0 0l-5-5m5 5l5-5"/><path d="M5 20h14"/></svg>
+
             免费下载 Windows</a>
+
           <a class="btn btn-ghost" href="https://github.com/HZDavy/coding-plan-monitor" target="_blank" rel="noopener">
+
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56v-2.01c-3.2.7-3.87-1.37-3.87-1.37-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.69 1.25 3.34.96.1-.74.4-1.25.73-1.54-2.55-.29-5.23-1.28-5.23-5.69 0-1.26.45-2.28 1.18-3.08-.12-.29-.51-1.46.11-3.04 0 0 .96-.31 3.15 1.18a10.94 10.94 0 0 1 5.74 0c2.19-1.49 3.15-1.18 3.15-1.18.62 1.58.23 2.75.11 3.04.73.8 1.18 1.82 1.18 3.08 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.07.78 2.15v3.19c0 .31.21.68.8.56C20.21 21.39 23.5 17.08 23.5 12 23.5 5.65 18.35.5 12 .5z"/></svg>
+
             查看源码</a>
+
         </div>
+
         <p class="hero-note">
+
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>
+
           Windows 10/11 64-bit · 无需应用市代码不受限</p>
+
       </div>
+
+
 
       <div class="hero-visual" aria-hidden="true">
+
         <div class="mock">
+
           <div class="mock-bar">
+
             <span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span>
+
             <span class="mock-title">CodingPlanMonitor.exe</span>
+
             <span class="mock-tag">透明主题</span>
+
           </div>
+
           <div class="mock-body">
+
             <div class="mock-brand">
+
               <div class="mock-logo"></div>
+
               <div class="mock-brand-info">
+
                 <div class="mock-brand-name">火山方舟 Coding Plan</div>
+
                 <div class="mock-brand-sub"><span class="dot dot-g-mini"></span>实时同步刷新</div>
+
               </div>
+
             </div>
+
             <div class="mock-cards">
+
               <div class="mock-card"><div class="mock-card-label">本月余额</div><div class="mock-card-value">82.3%</div><div class="mock-card-bar"><span style="width:82%"/></span></div></div>
+
               <div class="mock-card"><div class="mock-card-label">今日使用</div><div class="mock-card-value">12.4%</div><div class="mock-card-bar"><span style="width:12%"/></span></div></div>
+
               <div class="mock-card"><div class="mock-card-label">本周预估</div><div class="mock-card-value">68.7%</div><div class="mock-card-bar"><span style="width:69%"/></span></div></div>
+
               <div class="mock-card accent"><div class="mock-card-label">本月预估</div><div class="mock-card-value">91.0%</div><div class="mock-card-bar"><span style="width:91%"/></span></div></div>
+
             </div>
+
             <div class="mock-chart"><div class="mock-chart-label">近10天用量趋势</div><svg viewBox="0 0 320 80" class="sparkline" preserveAspectRatio="none" aria-hidden="true"><path d="M0,55 L20,48 L40,52 L60,40 L80,46 L100,30 L120,38 L140,25 L160,32 L180,18 L200,28 L220,15 L240,22 L260,10 L280,18 L300,8 L320,12" fill="none" stroke="url(#spark)" stroke-width="2"/><path d="M0,55 L20,48 L40,52 L60,40 L80,46 L100,30 L120,38 L140,25 L160,32 L180,18 L200,28 L220,15 L240,22 L260,10 L280,18 L300,8 L320,12 L320,80 L0,80 Z" fill="url(#sparkfill)"/><defs><linearGradient id="spark" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#6c8cff"/><stop offset="1" stop-color="#28c840"/></linearGradient><linearGradient id="sparkfill" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#6c8cff" stop-opacity="0.4"/><stop offset="1" stop-color="#28c840" stop-opacity="0"/></linearGradient></defs></svg></div>
+
           </div>
+
         </div>
+
         <div class="hero-badge-float">
+
           <div class="float-icon">⚡</div>
+
           <div class="float-text"><div class="float-title">刷新频率0s/30s</div><div class="float-sub">不占用工作区</div></div>
+
         </div>
+
       </div>
+
     </div>
+
   </header>
 
+
+
   <section class="logos">
+
     <div class="wrap">
+
       <div class="logos-label">为以下场景提供载体</div>
+
       <div class="logos-row">
+
         <div class="logo-item">火山方舟 Coding Plan</div>
+
         <div class="logo-item">AK/SK</div>
+
         <div class="logo-item">PyQt5</div>
+
         <div class="logo-item">Python 3.10+</div>
+
         <div class="logo-item">Windows 10/11</div>
+
         <div class="logo-item">GitHub Actions</div>
+
       </div>
+
     </div>
+
   </section>
+
+
 
   <section id="features" class="features-wrap">
+
     <div class="wrap">
+
       <div class="section-head">
+
         <span class="section-eyebrow">核心优势</span>
+
         <h2 class="section-title">技术能力，不应该只是个小工具</h2>
+
         <p class="section-sub">不是一个“全能型”工具。只做一件事、做到极致。</p>
+
       </div>
+
       <div class="feature-grid">
+
         <div class="feature-card">
+
           <div class="feature-ico">⚡</div>
+
           <h3>轻量上手</h3>
+
           <p>单文件运行。不占用工作区。主程序与打包都在同一个《。》文件里。</p>
+
         </div>
+
         <div class="feature-card">
+
           <div class="feature-ico">🔒</div>
+
           <h3>本地运行</h3>
+
           <p>接口请求、权限刷新、余额读取全部在本机。不上传、不统计、不跟踪。</p>
+
         </div>
+
         <div class="feature-card">
+
           <div class="feature-ico">🎯</div>
+
           <h3>量化余额</h3>
+
           <p>实时运行、刷新频率可调。余额、今日、本周、本月预估一眼可见。</p>
+
         </div>
+
         <div class="feature-card">
+
           <div class="feature-ico">📈</div>
+
           <h3>多天记录</h3>
+
           <p>本地记录近7天用量。阈值可调、达到预设提醒。</p>
+
         </div>
+
         <div class="feature-card">
+
           <div class="feature-ico">💸</div>
+
           <h3>价格表查询</h3>
+
           <p>内置多款模型多类计费。选型后自动显示单价。</p>
+
         </div>
+
         <div class="feature-card">
+
           <div class="feature-ico">🎨</div>
+
           <h3>位置记忆</h3>
+
           <p>透明度可调、鼠标可拖、位置记住。摆在任何不碍事的地方。</p>
+
         </div>
+
       </div>
+
     </div>
+
   </section>
+
+
 
   <section id="workflow" class="workflow-section">
+
     <div class="wrap">
+
       <div class="section-head">
+
         <span class="section-eyebrow">三步上手</span>
+
         <h2 class="section-title">下载、填写、连接，三分钟完成</h2>
+
         <p class="section-sub">不需要任何环境配置。下载后双击运行即可。</p>
+
       </div>
+
       <div class="step-grid">
+
         <div class="step">
+
           <div class="step-num">01</div>
+
           <h3>下载客户端</h3>
+
           <p>从发行页下载最新版本。双击运行即可。</p>
+
           <div class="step-detail">Releases 页面下载 .exe 安装包</div>
+
         </div>
+
         <div class="step">
+
           <div class="step-num">02</div>
+
           <h3>填写AK/SK</h3>
+
           <p>首次运行后填入控制台获取的AK/SK。存入本地配置文件。</p>
+
           <div class="step-detail">首次运行输入后写入本地 config.ini</div>
+
         </div>
+
         <div class="step">
+
           <div class="step-num">03</div>
+
           <h3>连接个人控制台</h3>
+
           <p>点击连接后小窗口实时显示余额、用量、价格表。</p>
+
           <div class="step-detail">浮窗实时显示余额、用量、价格</div>
+
         </div>
+
       </div>
+
     </div>
+
   </section>
+
+
 
   <section id="security" class="security-section">
+
     <div class="wrap">
+
       <div class="section-head">
+
         <span class="section-eyebrow">安全与隐私</span>
+
         <h2 class="section-title">你的凭证，只在你手里</h2>
+
         <p class="section-sub">以下是我们作为开发者的三个承诺。</p>
+
       </div>
+
       <div class="security-grid">
+
         <div class="security-card">
+
           <div class="security-icon">💾</div>
+
           <h3>本地储存，从本机走</h3>
+
           <p>AK/SK仅存入本地配置文件。代码全部开源，你可以随时打开核查。</p>
+
         </div>
+
         <div class="security-card">
+
           <div class="security-icon">🔍</div>
+
           <h3>最小权限</h3>
+
           <p>仅请求余额、用量、价格表接口。不读取你的任何聊天记录、文件、设置。</p>
+
         </div>
+
         <div class="security-card">
+
           <div class="security-icon">📜</div>
+
           <h3>完全开源可审计</h3>
+
           <p>一行代码都在你眼盖下。没有隐藏接口、隐藏上报、隐藏你不知道的行为。</p>
+
         </div>
+
       </div>
+
     </div>
+
   </section>
+
+
 
   <section id="faq" class="faq-section">
+
     <div class="wrap">
+
       <div class="section-head">
+
         <span class="section-eyebrow">常见问题</span>
+
         <h2 class="section-title">你可能会问的事情</h2>
+
       </div>
+
       <div class="faq-list">
+
         <details class="faq-item">
+
           <summary>这是怎么实现的</summary>
+
           <div class="faq-body">使用 PyInstaller 把 PyQt5 程序打包成单文件 .exe,启动后调用你的本地 AK/SK 凭证,实时拉取 Coding Plan 接口,小窗口显示余额、今日/本周/本月预估以及多模型价格表。</div>
+
         </details>
+
         <details class="faq-item">
+
           <summary>凭证会被上传吗</summary>
+
           <div class="faq-body">不会。本项目不含任何上报、追踪、统计代码。AK/SK仅在本地使用。</div>
+
         </details>
+
         <details class="faq-item">
+
           <summary>可以用在公司账号上吗</summary>
+
           <div class="faq-body">可以。本工具仅请求余额、用量、价格表接口，不区分个人与企业。</div>
+
         </details>
+
         <details class="faq-item">
+
           <summary>为什么不上应用商店</summary>
+
           <div class="faq-body">以安全为优先。上商店需要提交计费证明、公司资料、定期备案，本项目完全开源、免费、不收集任何信息。</div>
+
         </details>
+
         <details class="faq-item">
+
           <summary>会被平台认为是你们吗</summary>
+
           <div class="faq-body">不会。本项目与火山方舟不存在任何联系。查看仓库：https://github.com/HZDavy/coding-plan-monitor。</div>
+
         </details>
+
         <details class="faq-item">
+
           <summary>如何反馈问题或提议功能</summary>
+
           <div class="faq-body">请到GitHub Issues 页面提交：https://github.com/HZDavy/coding-plan-monitor/issues。</div>
+
         </details>
+
       </div>
+
     </div>
+
   </section>
+
+
 
   <section id="download" class="downloads">
+
     <div class="wrap">
+
       <div class="section-head">
+
         <span class="section-eyebrow">下载</span>
+
         <h2 class="section-title">现在就当场开始，一分钟后就能看到余额</h2>
+
         <p class="section-sub">选择你的平台。全部免费、开源、本地运行。</p>
+
       </div>
+
       <div class="dl-grid">
+
         <a class="dl-card" href="https://github.com/HZDavy/coding-plan-monitor/releases/latest" target="_blank" rel="noopener">
+
           <div class="dl-icon">💾</div>
+
           <div class="dl-info">
+
             <div class="dl-name">CodingPlanMonitor.exe</div>
+
             <div class="dl-meta">最新发行 基于 PyQt5 · Windows 10/11</div>
+
           </div>
+
           <div class="dl-size">~38 MB</div>
+
           <div class="dl-btn">下载→</div>
+
         </a>
+
         <a class="dl-card" href="https://github.com/HZDavy/coding-plan-monitor/archive/refs/heads/main.zip" target="_blank" rel="noopener">
+
           <div class="dl-icon">💾</div>
+
           <div class="dl-info">
+
             <div class="dl-name">Source (.zip)</div>
+
             <div class="dl-meta">最新源码 与 MIT 许可· 含 pyinstaller 脚本</div>
+
           </div>
+
           <div class="dl-size">~0.1 MB</div>
+
           <div class="dl-btn">下载→</div>
+
         </a>
+
         <a class="dl-card" href="https://github.com/HZDavy/coding-plan-monitor/pkgs/container/coding-plan-monitor" target="_blank" rel="noopener">
+
           <div class="dl-icon">💾</div>
+
           <div class="dl-info">
+
             <div class="dl-name">Docker Image</div>
+
             <div class="dl-meta">供高级玩家· 注意仅限于 python 代码运行</div>
+
           </div>
+
           <div class="dl-size">~220 MB</div>
+
           <div class="dl-btn">拉取→</div>
+
         </a>
+
       </div>
+
       <p class="dl-foot">
+
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M12 2L4 6v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V6l-8-4z"/></svg>
+
         可以在 控制台 使用 AK/SK 现场 获取 API Key 进行调试。这不会上传、不会追踪。</p>
+
     </div>
+
   </section>
 
+
+
   <footer class="footer">
+
     <div class="footer-inner">
+
       <div class="footer-brand">
+
         <div class="brand">
+
           <span class="brand-mark">✨</span>
+
           <span class="brand-name">Coding Plan Monitor</span>
+
         </div>
+
         <p class="footer-tag">火山方舟 Coding Plan·原主开源·本地运行</p>
+
       </div>
+
       <div class="footer-links">
+
         <a href="#features">功能</a>
+
         <a href="#workflow">上手</a>
+
         <a href="#security">安全</a>
+
         <a href="#faq">常见问题</a>
+
         <a href="#download">下载</a>
+
         <a href="https://github.com/HZDavy/coding-plan-monitor" rel="noopener">GitHub</a>
+
       </div>
+
     </div>
+
     <div class="footer-meta">
+
       <p>©2026 HZDavy·MIT License</p>
+
       <p class="footer-disclaimer">本页为社区开源项目官网·不与火山方舟官方产生任何联系、合作或责任关系</p>
+
     </div>
+
   </footer>
+
 </main>
+
 </body>
+
 </html>
+
