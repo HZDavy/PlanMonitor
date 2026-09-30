@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 44" fill="none">
+<defs>
+<linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0" stop-color="#10B981"/>
+<stop offset="1" stop-color="#059699"/>
+</linearGradient>
+<linearGradient id="lt" x1="0" y1="0" x2="1" y2="0">
+<stop offset="0" stop-color="#fff"/>
+<stop offset="0.6" stop-color="#D1FAE5"/>
+<stop offset="1"  stop-color="#34D399"/>
+</linearGradient>
+</defs>
+<rect x="2" y="2" width="40" height="40" rx="10" fill="url(#lg)"/>
+<path d="M11 28 L18 21 L23 26 L29 17 C- 3 21 L33 21" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+<circle cx="33" cy="21" r="1.8" fill="#fff"/>
+<text x="54" y="28" font-family="-apple-system,Segoe UI,PingFank SC,sans-serif" font-size="18" font-weight="700" fill="url(#lt)" letter-spacing="-0.3">Coding Plan</text>
+<text x="160" y="28" font-family="-apple-system,Segoe UI,PingFank SC,sans-serif" font-size="18" font-weight="300" fill="#8C8C98">Monitor</text>
+</svg>
