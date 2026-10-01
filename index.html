@@ -126,7 +126,7 @@
     <div class="section-head">
       <div class="kicker"><span class="zh">功能</span><span class="en">Features</span></div>
       <h2 class="section-title">
-        <span class="zh">一个扛7开就能看到</span>
+        <span class="zh">一打开就能看到</span>
         <span class="en">Open it and</span>
         <span class="i"><span class="zh">三个用量窗口</span><span class="en">see three windows</span></span>
       </h2>
@@ -236,7 +236,7 @@
         <div class="step-num">03</div>
         <div class="step-body">
           <h3><span class="zh">粘贴到「设置」</span><span class="en">Paste into Settings</span></h3>
-          <p><span class="zh">点右下角「⚙ 设置」，填入 Access Key ID、Secret Access Key，可选 Region（默认 <code>cn-beijing</code>），点「保存」。</span><span class="en">Click <em>⚘ Settings</em>, paste Access Key ID + Secret Access Key, set Region if needed (default <code>cn-beijing</code>), Save.</span></p>
+          <p><span class="zh">点右下角「⚙ 设置」，填入 Access Key ID、Secret Access Key，可选 Region（默认 <code>cn-beijing</code>），点「保存」。</span><span class="en">Click ⚙ Settings, paste Access Key ID + Secret Access Key, set Region if needed (default <code>cn-beijing</code>), Save.</span></p>
         </div>
       </li>
       <li class="step">
@@ -250,7 +250,7 @@
         <div class="step-num">05</div>
         <div class="step-body">
           <h3><span class="zh">拖到副屏</span><span class="en">Park it on a second screen</span></h3>
-          <p><span class="zh">拖到副屏合适位置 → 「「 置顶」让它一直带在最前 → 「→ 副屏」一键跳转。下次启动会恢复到上次的位置和屏幕。</span><span class="en">Drag to where you want it, tap 「钉钉」to keep it on top, tap 「→ 副屏」to send it to the first external display. Next launch restores window + screen.</span></p>
+          <p><span class="zh">拖到副屏合适位置 → 「置顶」让它一直显示在最前 → 「→ 副屏」一键跳到外接屏。下次启动会恢复到上次的位置和屏幕。</span><span class="en">Drag to where you want it, tap &ldquo;Pin&rdquo; to keep it on top, tap &ldquo;→ Secondary&rdquo; to send it to the first external display. Next launch restores window + screen.</span></p>
         </div>
       </li>
     </ol>
@@ -262,7 +262,7 @@
     <div class="section-head">
       <div class="kicker"><span class="zh">隐私与安全</span><span class="en">Privacy &amp; Security</span></div>
       <h2 class="section-title">
-        <span class="zh">出网只走</span>
+        <span class="zh">只往外打</span>
         <span class="en">Only one</span>
         <span class="i"><span class="zh">一个接口</span><span class="en">outbound endpoint</span></span>
       </h2>
@@ -278,15 +278,15 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4z" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <h3><span class="zh">HMAC-SHA256 V4 签名</span><span class="en">HMAC-SHA256 V4 signing</span></h3>
-        <p><span class="zh">按火山引擎官方 Signature V4 规范生成签名头，包含 X-Date、X-Content-Sha256、以及一个可重放的凭证。</span><span class="en">Headers follow Volcengine&#39;s Signature V4 spec — X-Date, X-Content-Sha256, credential-scope and signature are all present.</span></p>
+        <p><span class="zh">按火山引擎官方 Signature V4 规范生成签名头：包含 X-Date、X-Content-Sha256、credential-scope，以及基于请求体计算出的 signature。</span><span class="en">Headers follow Volcengine&#39;s Signature V4 spec — X-Date, X-Content-Sha256, credential-scope and a signature computed over the request body.</span></p>
       </article>
 
       <article class="trust-card">
         <div class="trust-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3" stroke-linecap="round"/></svg>
         </div>
-        <h3><span class="zh">凭证仅写本地 config.json</span><span class="en">Credentials: config.json only</span></h3>
-        <p><span class="zh">AK / SK 只保存到与程序同目录的 <code>config.json</code>。这是明文，所以请勿上传到仓库，也请为本工具单独创建子账号。</span><span class="en">AK / SK are written to <code>config.json</code> next to the exe. It&#39;s plaintext, so don&#39;t commit it — and use a dedicated sub-account.</span></p>
+        <h3><span class="zh">凭据仅写到本地 config.json</span><span class="en">Credentials: config.json only</span></h3>
+        <p><span class="zh">AK / SK 只保存到与程序同目录的 <code>config.json</code>。这是明文，请勿提交到仓库，并请为本工具单独创建子账号。</span><span class="en">AK / SK are written to <code>config.json</code> next to the exe. It&#39;s plaintext, so don&#39;t commit it — and use a dedicated sub-account.</span></p>
       </article>
 
       <article class="trust-card">
@@ -334,7 +334,7 @@
         <span class="i"><span class="zh">在 README 里不存在的东西</span><span class="en">things that aren&#39;t in the README</span></span>
       </h2>
       <p class="section-sub">
-        <span class="zh">越少说「还有这个」，越不会被反驳。以下都是在代码中能被证伊为「不存在」的东西。</span>
+        <span class="zh">越少说「还有这个」，就越不会被反驳。下面列出的都是能在代码里被验证为「不存在」的东西。</span>
         <span class="en">The fewer things we promise, the harder we are to disprove. The list below is verifiably absent from the source.</span>
       </p>
     </div>
@@ -378,7 +378,7 @@
         <span class="nofake-x">×</span>
         <div class="nofake-text">
           <strong><span class="zh">全球「数千名用户」、「口碑」</span><span class="en">Testimonials</span></strong>
-          <p><span class="zh">以上所有人物头像、姓名、「使用者评论」都是作者编的。如果有真实用户上门提交体验，会明确列出 GitHub ID、帐号、引用来源。</span><span class="en">No avatars, no fake names. If a real user submits feedback it will be listed with their GitHub handle and a link to the source.</span></p>
+          <p><span class="zh">上面所有头像、姓名、「使用者评价」都是不存在的。如果真有用户愿意留下反馈，会附上 GitHub ID 与可点击的来源链接。</span><span class="en">No avatars, no fake names. If a real user wants to leave feedback, we&#39;ll publish their GitHub handle with a link to the source.</span></p>
         </div>
       </div>
     </div>
