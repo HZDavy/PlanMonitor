@@ -560,23 +560,23 @@
     });
   }
 
-  // mock-window 等比缩放,避免移动端拉伸变形
+  // mock-window 内部按比例缩放,避免移动端拉伸 / 溢出
   (function () {
     var mock = document.querySelector('.mock-window');
     if (!mock) return;
-    var NAT_W = 560, NAT_H = 692;
+    var NAT_W = 560;
     function fitMock() {
-      var parent = mock.parentElement;
-      if (!parent) return;
-      var rect = parent.getBoundingClientRect();
-      var availW = rect.width - 16;
-      var availH = Math.max(360, Math.min(window.innerHeight - 40, 820));
-      var scale = Math.min(availW / NAT_W, availH / NAT_H, 1);
-      if (scale > 1) scale = 1;
-      if (scale < 0.3) scale = 0.3;
-      mock.style.setProperty('--mock-scale', scale.toFixed(3));
+      var w = mock.getBoundingClientRect().width;
+      if (!w) return;
+      var u = w / NAT_W;
+      if (u > 1) u = 1;
+      if (u < 0.55) u = 0.55;
+      mock.style.setProperty('--mu', u.toFixed(3));
     }
     fitMock();
+    if (typeof ResizeObserver !== 'undefined') {
+      new ResizeObserver(fitMock).observe(mock);
+    }
     window.addEventListener('resize', fitMock, { passive: true });
     window.addEventListener('orientationchange', fitMock, { passive: true });
   })();
