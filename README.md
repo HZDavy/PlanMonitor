@@ -4,6 +4,8 @@
 
 数据源:火山方舟 OpenAPI GetAFPUsage(Action=GetAFPUsage&Version=2024-01-01)。
 
+官网:https://hzdavy.github.io/coding-plan-monitor/
+
 ## 项目介绍
 
 本工具的设计目标是「挂在副屏、看着余额用完」:
