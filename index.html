@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Coding Plan Monitor · Ship Faster with Local-First HUD</title>
-<meta name="description" content="Coding Plan Monitor - 火山方舟 Coding Plan 的本地浮窗，AK/SK 不离开本机。">
+<title>Coding Plan Monitor · 火山方舟 Coding Plan 用量浮窗</title>
+<meta name="description" content="Coding Plan Monitor - 一个 PyQt5 桌面小工具，定位副屏查看火山方舟 Coding Plan 个人版 AFP 额度用量。">
 <meta name="theme-color" content="#0B0B0F">
 <meta property="og:title" content="Coding Plan Monitor">
-<meta property="og:description" content="Local desktop HUD for Volcengine Coding Plan. AK/SK never leaves your machine.">
+<meta property="og:description" content="火山方舟 Coding Plan 个人版 AFP 用量的桌面小工具。">
 <meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
@@ -16,6 +16,7 @@
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
+
 <nav class="nav" id="nav">
   <div class="container nav-inner">
     <a class="brand" href="#top" aria-label="Coding Plan Monitor">
@@ -26,15 +27,20 @@
       <li><a href="#features"><span class="zh">功能</span><span class="en">Features</span></a></li>
       <li><a href="#how"><span class="zh">上手</span><span class="en">How</span></a></li>
       <li><a href="#trust"><span class="zh">安全</span><span class="en">Trust</span></a></li>
-      <li><a href="#loved"><span class="zh">口碑</span><span class="en">Loved</span></a></li>
       <li><a href="#download"><span class="zh">下载</span><span class="en">Download</span></a></li>
     </ul>
     <div class="nav-right">
       <button class="lang-switch" id="langSwitch" aria-label="Switch language"><span class="lang-on">中</span><span class="lang-off">EN</span></button>
-      <a class="btn-primary btn-sm" href="#download"><span class="zh">免费下载</span><span class="en">Download Free</span></a>
+      <a class="gh-stars" href="https://github.com/HZDavy/coding-plan-monitor" target="_blank" rel="noopener" aria-label="Star on GitHub" id="ghStars">
+        <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M8 .25a.75.75 0 01.673.418l1.882 3.815 4.21.612a.75.75 0 01.416 1.279l-3.046 2.97.719 4.192a.75.75 0 01-1.088.791L8 12.347l-3.766 1.98a.75.75 0 01-1.088-.79l.72-4.194L.818 6.374a.75.75 0 01.416-1.28l4.21-.611L7.327.668A.75.75 0 018 .25z"/></svg>
+        <span class="gh-stars-label">Star</span>
+        <span class="gh-stars-count" id="ghStarsCount">—</span>
+      </a>
+      <a class="btn-primary btn-sm" href="#download"><span class="zh">下载 v1.0.0</span><span class="en">Download v1.0.0</span></a>
     </div>
   </div>
 </nav>
+
 <header class="hero" id="top">
   <div class="hero-bg" aria-hidden="true">
     <div class="bg-grid"></div>
@@ -44,37 +50,37 @@
   <div class="container hero-inner">
     <div class="hero-eyebrow">
       <span class="hero-eyebrow-dot"></span>
-      <span class="zh">火山方舟 Coding Plan · 已连接</span>
-      <span class="en">Volcengine Coding Plan · Connected</span>
+      <span class="zh">一个 PyQt5 桌面小工具 · 火山方舟 Coding Plan</span>
+      <span class="en">A small PyQt5 HUD · Volcengine Coding Plan</span>
     </div>
     <h1 class="hero-title">
-      <span class="zh hero-line">实时看到</span>
-      <span class="en hero-line">Always see</span>
+      <span class="zh hero-line">看一眼</span>
+      <span class="en hero-line">Glance once,</span>
       <span class="hero-display"><span class="zh">Coding Plan</span><span class="en">Coding Plan</span></span>
-      <span class="hero-display-i"><span class="zh">余额与用量</span><span class="en">balance & usage</span></span>
-      <span class="zh hero-line-small">的本地浮窗</span>
-      <span class="en hero-line-small">on your desktop</span>
+      <span class="hero-display-i"><span class="zh">额度还剩多少</span><span class="en">quota left</span></span>
+      <span class="zh hero-line-small">不再切窗去控制台</span>
+      <span class="en hero-line-small">no more tab-juggling</span>
     </h1>
     <p class="hero-sub">
-      <span class="zh">把 Coding Plan 的余额、今日用量、模型限额放在屏幕角落。轻量、托盘常驻、零云端回传 —— 写代码时永远知道还剩多少。</span>
-      <span class="en">A tiny always-on-top HUD for Volcengine Coding Plan. Balance, today&#39;s spend and per-model limits — pinned to the corner while you ship. No telemetry.</span>
+      <span class="zh">将火山方舟 OpenAPI 返回的 AFP 额度用量【近 5 小时 / 近一周 / 近一月】定位在桌面上。默认 320 × 460，可缩、可置顶、可拖到副屏。仅读取一个接口，不写任何本地、云端缓存。</span>
+      <span class="en">A PyQt5 HUD that pulls your Volcengine AFP usage (last 5h / week / month) and pins it on the desktop. Default 320 × 460, resizable, always-on-top capable, draggable to a secondary monitor. One outbound API call, zero local or remote caching.</span>
     </p>
     <div class="hero-cta">
       <a class="btn-primary" href="#download">
-        <span class="zh">免费下载 · Windows</span>
-        <span class="en">Download Free · Windows</span>
+        <span class="zh">下载 v1.0.0 · Windows</span>
+        <span class="en">Download v1.0.0 · Windows</span>
       </a>
-      <a class="btn-ghost" href="#how">
-        <span class="zh">先看上手 →</span>
-        <span class="en">See how it works →</span>
+      <a class="btn-ghost" href="https://github.com/HZDavy/coding-plan-monitor" target="_blank" rel="noopener">
+        <span class="zh">在 GitHub 上查看 →</span>
+        <span class="en">View on GitHub →</span>
       </a>
     </div>
     <div class="hero-meta">
-      <div class="hero-meta-item"><strong>v1.2.0</strong><span class="zh">最新稳定版</span><span class="en">Latest stable</span></div>
+      <div class="hero-meta-item"><strong>40 MB</strong><span class="zh">独立 exe 包</span><span class="en">Single-file exe</span></div>
       <div class="hero-meta-divider"></div>
-      <div class="hero-meta-item"><strong>9.6 MB</strong><span class="zh">安装包体积</span><span class="en">Installer size</span></div>
+      <div class="hero-meta-item"><strong>1,828</strong><span class="zh">Python 行数</span><span class="en">Lines of Python</span></div>
       <div class="hero-meta-divider"></div>
-      <div class="hero-meta-item"><strong>Win 10/11</strong><span class="zh">支持系统</span><span class="en">Supported OS</span></div>
+      <div class="hero-meta-item"><strong>Python 3.8+</strong><span class="zh">运行要求</span><span class="en">Runtime</span></div>
     </div>
     <div class="hero-mock" aria-hidden="true">
       <div class="mock-window">
@@ -82,52 +88,51 @@
           <div class="mock-dots"><span></span><span></span><span></span></div>
           <div class="mock-name">
             <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#10B981"/><stop offset="1" stop-color="#059669"/></linearGradient></defs><rect x="2" y="3" width="12" height="10" rx="2" fill="url(#lg)"/><path d="M4.5 10 L7 7.5 L9 9 L11.5 6.5" stroke="#fff" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <span class="zh">Coding Plan Monitor</span><span class="en">Coding Plan Monitor</span>
+            <span>Coding Plan Monitor</span>
           </div>
           <div class="mock-pin"></div>
         </div>
         <div class="mock-cards">
           <div class="mock-card">
-            <div class="mock-label"><span class="zh">剩余额度</span><span class="en">Remaining</span></div>
-            <div class="mock-val"><span class="num">¥ 47.82</span><span class="delta up">+0%</span></div>
-            <div class="mock-bar"><div class="mock-bar-fill" style="width:62%"></div></div>
+            <div class="mock-label">近 5 小时 / Last 5H</div>
+            <div class="mock-val"><span class="num">12.5 / 50</span><span class="delta">25%</span></div>
+            <div class="mock-bar"><div class="mock-bar-fill" style="width:25%"></div></div>
+            <div class="mock-sub">剩余 37.5 · 重置 4h 47m</div>
           </div>
           <div class="mock-card">
-            <div class="mock-label"><span class="zh">今日用量</span><span class="en">Today</span></div>
-            <div class="mock-val"><span class="num">¥ 3.14</span><span class="delta">· 18 calls</span></div>
-            <div class="mock-bar"><div class="mock-bar-fill" style="width:18%"></div></div>
+            <div class="mock-label">近一周 / Last week</div>
+            <div class="mock-val"><span class="num">150 / 500</span><span class="delta">30%</span></div>
+            <div class="mock-bar"><div class="mock-bar-fill" style="width:30%"></div></div>
+            <div class="mock-sub">剩余 350 · 重置 4d 7h</div>
           </div>
           <div class="mock-card">
-            <div class="mock-label"><span class="zh">本周累计</span><span class="en">This week</span></div>
-            <div class="mock-val"><span class="num">¥ 21.06</span><span class="delta">· 7d</span></div>
+            <div class="mock-label">近一月 / Last month</div>
+            <div class="mock-val"><span class="num">850 / 2000</span><span class="delta">42.5%</span></div>
             <div class="mock-bar"><div class="mock-bar-fill" style="width:42%"></div></div>
-          </div>
-          <div class="mock-card">
-            <div class="mock-label"><span class="zh">本月</span><span class="en">This month</span></div>
-            <div class="mock-val"><span class="num">¥ 64.50</span><span class="delta">· 23d</span></div>
-            <div class="mock-bar"><div class="mock-bar-fill" style="width:58%"></div></div>
+            <div class="mock-sub">剩余 1150 · 重置 26d 7h</div>
           </div>
         </div>
         <div class="mock-foot">
           <span class="mock-foot-item"><i class="dot d-green"></i><span class="zh">在线</span><span class="en">Online</span></span>
-          <span class="mock-foot-item"><span class="zh">最近更新 · 2s 前</span><span class="en">Updated · 2s ago</span></span>
+          <span class="mock-foot-item"><span class="zh">下次刷新 23s</span><span class="en">Next refresh 23s</span></span>
         </div>
       </div>
     </div>
   </div>
 </header>
+
 <section class="section section-features" id="features">
   <div class="container">
     <div class="section-head">
-      <div class="kicker"><span class="zh">功能亮点</span><span class="en">What You'll Unlock</span></div>
+      <div class="kicker"><span class="zh">功能</span><span class="en">Features</span></div>
       <h2 class="section-title">
-        <span class="zh">装上就回不去的</span>
-        <span class="en">Once you ship,</span>
-        <span class="i"><span class="zh">桌面浮窗</span><span class="en">no going back</span></span>
+        <span class="zh">一个扛7开就能看到</span>
+        <span class="en">Open it and</span>
+        <span class="i"><span class="zh">三个用量窗口</span><span class="en">see three windows</span></span>
       </h2>
       <p class="section-sub">
-        <span class="zh">Coding Plan Monitor 把 Coding Plan 的关键数字直接钉在屏幕边缘。一行代码不用写，一秒登录即可 —— 就像 IDE 自带的功能。</span>
-        <span class="en">Coding Plan Monitor pins the numbers that matter to the corner of your screen. Zero code, one-second sign-in — it should ship with every IDE.</span>
+        <span class="zh">全部以 README 为准：仅读取一个接口、显示三个用量窗口、定位到桌面。什么多模型配额、调度、SQLite 都不存在。</span>
+        <span class="en">Everything below is in the README. We don&#39;t fake per-model quotas, schedulers, SQLite caches or HTTP endpoints.</span>
       </p>
     </div>
 
@@ -135,10 +140,10 @@
       <article class="feature">
         <div class="feature-num">00</div>
         <div class="feature-body">
-          <h3 class="feature-title"><span class="zh">从想法到上线 · 浮窗全程陪跑</span><span class="en">From idea to launch · always-on HUD</span></h3>
+          <h3 class="feature-title"><span class="zh">三个用量窗口</span><span class="en">Three usage windows</span></h3>
           <p class="feature-desc">
-            <span class="zh">托盘常驻、悬浮置顶、可拖拽。余额、模型限额、今日用量直接嵌进 IDE 边缘，不再切窗口去控制台。</span>
-            <span class="en">Lives in the tray, snaps to top, draggable by mouse. Balance, per-model caps and today&#39;s spend sit right next to your editor — no more tab-juggling.</span>
+            <span class="zh">同时显示【近 5 小时 / 近一周 / 近一月】的已用 / 配额 / 剩余 / 剩余百分比，以及距离下次重置的倒计时。</span>
+            <span class="en">Shown side-by-side: used / quota / remaining / remaining% for last 5h, last week, last month — plus a countdown to the next reset.</span>
           </p>
         </div>
       </article>
@@ -146,10 +151,10 @@
       <article class="feature">
         <div class="feature-num">01</div>
         <div class="feature-body">
-          <h3 class="feature-title"><span class="zh">完全本地自主 · 不依赖 IDE</span><span class="en">Fully autonomous · IDE-free</span></h3>
+          <h3 class="feature-title"><span class="zh">小窗口 · 可缩可置顶</span><span class="en">Tiny window · on-top</span></h3>
           <p class="feature-desc">
-            <span class="zh">独立 PyQt5 进程，不需要 VS Code / Cursor 也能跑。写文档、P图、看 PDF 时依然能看见你的 Coding Plan 还剩多少。</span>
-            <span class="en">A standalone PyQt5 process — runs even without VS Code or Cursor. Watching the budget while you sketch, write docs, or read a PDF.</span>
+            <span class="zh">默认 320 × 460，可拖到副屏。一键 「置顶」在所有窗口之上，一键 「→ 副屏」立即跳转外接屏。</span>
+            <span class="en">Default 320 × 460, draggable to a secondary monitor. Pin keeps it above everything, &#39;→ secondary&#39; jumps it onto the first external display.</span>
           </p>
         </div>
       </article>
@@ -157,10 +162,10 @@
       <article class="feature">
         <div class="feature-num">02</div>
         <div class="feature-body">
-          <h3 class="feature-title"><span class="zh">IDE 与独立模式 · 无缝穿梭</span><span class="en">IDE or solo · switch in one click</span></h3>
+          <h3 class="feature-title"><span class="zh">30 秒自动刷新</span><span class="en">Auto refresh every 30s</span></h3>
           <p class="feature-desc">
-            <span class="zh">想静默就收进托盘，想展开就点图标放大。两种状态都保持 60fps 流畅滚动，长时间挂着也不掉帧。</span>
-            <span class="en">Tray it when you need focus, expand it when you need to see. 60fps in both modes, no jank after 12-hour sessions.</span>
+            <span class="zh">内置 QTimer 每 30 秒拉取一次。也可点右下角的 🔄 手动刷新。</span>
+            <span class="en">A QTimer fires every 30s and re-pulls the API. Click the 🔄 button in the corner to refresh manually.</span>
           </p>
         </div>
       </article>
@@ -168,10 +173,10 @@
       <article class="feature">
         <div class="feature-num">03</div>
         <div class="feature-body">
-          <h3 class="feature-title"><span class="zh">多模型配额 · 一眼看穿</span><span class="en">Multi-model caps · one glance</span></h3>
+          <h3 class="feature-title"><span class="zh">配额局部保存</span><span class="en">Local credentials only</span></h3>
           <p class="feature-desc">
-            <span class="zh">Doubao / DeepSeek / GLM 等每个模型单独配额、QPS、并发改写。点击图表可切换时间窗，看到底是谁在烧钱。</span>
-            <span class="en">Per-model quotas, QPS, concurrency and rewrite rules for Doubao / DeepSeek / GLM. Click a chart to change window — see what&#39;s actually burning cash.</span>
+            <span class="zh">AK / SK 仅保存到同目录的 <code>config.json</code>，不上传任何服务器。推荐为本工具单独创建子账号 AK，仅授予 <code>ArkReadOnlyAccess</code>。</span>
+            <span class="en">AK / SK are written to <code>config.json</code> next to the exe. They never leave the machine. We recommend a dedicated sub-account AK with <code>ArkReadOnlyAccess</code> only.</span>
           </p>
         </div>
       </article>
@@ -179,10 +184,10 @@
       <article class="feature">
         <div class="feature-num">04</div>
         <div class="feature-body">
-          <h3 class="feature-title"><span class="zh">低占用 · 真正后台</span><span class="en">Tiny footprint · true background</span></h3>
+          <h3 class="feature-title"><span class="zh">一个文件·可直接分发</span><span class="en">One file · easy to ship</span></h3>
           <p class="feature-desc">
-            <span class="zh">空载 18MB 内存，闲置 CPU 0%。推送 60 秒一次，HTTP keep-alive + ETag 复用，唤醒时一帧内出图。</span>
-            <span class="en">18MB RAM idle, 0% CPU when nothing changes. 60-second polling, HTTP keep-alive + ETag — wakes up in one frame.</span>
+            <span class="zh">仅 <code>coding_plan_monitor.py</code> 一个 Python 文件，<code>pip install PyQt5 requests</code> 后直接 <code>python coding_plan_monitor.py</code>。打包变体是 PyInstaller 的 <code>CodingPlanMonitor.exe</code>。</span>
+            <span class="en">A single <code>coding_plan_monitor.py</code>. <code>pip install PyQt5 requests</code>, then <code>python coding_plan_monitor.py</code>. Binary is a PyInstaller <code>CodingPlanMonitor.exe</code>.</span>
           </p>
         </div>
       </article>
@@ -190,24 +195,25 @@
       <article class="feature">
         <div class="feature-num">05</div>
         <div class="feature-body">
-          <h3 class="feature-title"><span class="zh">数据快照 · 暴露给脚本</span><span class="en">Snapshots · scriptable surface</span></h3>
+          <h3 class="feature-title"><span class="zh">仅读取一个接口</span><span class="en">Reads one endpoint only</span></h3>
           <p class="feature-desc">
-            <span class="zh">本机起一个 localhost:7891 HTTP，提供 JSON 快照给 Shell / Python / Alfred。CI 跑完后立刻拿到当日消耗。</span>
-            <span class="en">A localhost:7891 HTTP endpoint exposes JSON snapshots — pipe it to Shell, Python, Alfred. CI finishes, you already know today&#39;s spend.</span>
+            <span class="zh">请求唯一目的地是 <code>ark.cn-beijing.volcengineapi.com</code>，Action <code>GetCodingPlanUsage</code>，走 HMAC-SHA256 V4 签名。代码里 <strong>没有</strong> http.server / localhost / SQLite / pyqtgraph / keyring 依赖。</span>
+            <span class="en">Only outbound target is <code>ark.cn-beijing.volcengineapi.com</code>, action <code>GetCodingPlanUsage</code>, signed with HMAC-SHA256 V4. There is <strong>no</strong> http.server, no localhost port, no SQLite, no pyqtgraph, no keyring in the code.</span>
           </p>
         </div>
       </article>
     </div>
   </div>
 </section>
+
 <section class="section section-how" id="how">
   <div class="container">
     <div class="section-head">
-      <div class="kicker"><span class="zh">三步上手</span><span class="en">How it works</span></div>
+      <div class="kicker"><span class="zh">上手步骤</span><span class="en">How it works</span></div>
       <h2 class="section-title">
-        <span class="zh">解压，登录，</span>
-        <span class="en">Unzip, sign in,</span>
-        <span class="i"><span class="zh">立刻挂在桌面上</span><span class="en">it just sits there</span></span>
+        <span class="zh">下载、起步、</span>
+        <span class="en">Download, launch,</span>
+        <span class="i"><span class="zh">填个 AK 就能用</span><span class="en">paste an AK and go</span></span>
       </h2>
     </div>
 
@@ -215,46 +221,54 @@
       <li class="step">
         <div class="step-num">01</div>
         <div class="step-body">
-          <h3><span class="zh">解压即用</span><span class="en">Unzip &amp; open</span></h3>
-          <p><span class="zh">下载 zip，解压到任意文件夹，双击 CodingPlanMonitor.exe。第一次启动会请求管理员权限以写入开机自启。</span><span class="en">Download the zip, drop it anywhere, double-click CodingPlanMonitor.exe. First run asks for admin rights to enable auto-start.</span></p>
+          <h3><span class="zh">下载 exe</span><span class="en">Download the exe</span></h3>
+          <p><span class="zh">从 GitHub Releases 下载 <code>CodingPlanMonitor.exe</code>，放到任何文件夹。也可从源码直接运行 <code>coding_plan_monitor.py</code>。</span><span class="en">Grab <code>CodingPlanMonitor.exe</code> from GitHub Releases, drop it anywhere. Or just run <code>coding_plan_monitor.py</code> from source.</span></p>
         </div>
       </li>
       <li class="step">
         <div class="step-num">02</div>
         <div class="step-body">
-          <h3><span class="zh">粘贴 AK / SK</span><span class="en">Paste AK / SK</span></h3>
-          <p><span class="zh">打开浮窗的「设置 → 凭证」，粘贴火山方舟控制台生成的 Access Key。SK 走系统 Keyring 加密保存，不落盘明文。</span><span class="en">Open Settings → Credentials, paste your Volcengine Console Access Key. SK is stored in the OS Keyring — never written to disk in plaintext.</span></p>
+          <h3><span class="zh">走一遍控制台</span><span class="en">Open the Console</span></h3>
+          <p><span class="zh">访问《火山引擎访问控制 - Access Key 管理》，创建一个 Access Key（推荐仅授予 <code>ArkReadOnlyAccess</code> 的子账号）。</span><span class="en">Go to <em>Volcengine Console › IAM › Access Keys</em> and create one. Use a sub-account with <code>ArkReadOnlyAccess</code> only.</span></p>
         </div>
       </li>
       <li class="step">
         <div class="step-num">03</div>
         <div class="step-body">
-          <h3><span class="zh">浮窗自动常驻</span><span class="en">HUD stays on top</span></h3>
-          <p><span class="zh">60 秒内首次拉取完成，浮窗自动显示「剩余 / 今日 / 本周 / 本月」四张卡片。可拖到屏幕任意角落，下次启动自动归位。</span><span class="en">First pull completes within 60s. The HUD auto-shows four cards — Remaining / Today / Week / Month. Drag anywhere; the position is remembered.</span></p>
+          <h3><span class="zh">粘贴到「设置」</span><span class="en">Paste into Settings</span></h3>
+          <p><span class="zh">点右下角「⚙ 设置」，填入 Access Key ID、Secret Access Key，可选 Region（默认 <code>cn-beijing</code>），点「保存」。</span><span class="en">Click <em>⚘ Settings</em>, paste Access Key ID + Secret Access Key, set Region if needed (default <code>cn-beijing</code>), Save.</span></p>
         </div>
       </li>
       <li class="step">
         <div class="step-num">04</div>
         <div class="step-body">
-          <h3><span class="zh">接入你的脚本</span><span class="en">Plug into your scripts</span></h3>
-          <p><span class="zh">默认监听 127.0.0.1:7891，返回 JSON。CI 脚本 / Shell / Alfred workflow 可直接 curl 拿到当日消耗。</span><span class="en">Binds 127.0.0.1:7891 and returns JSON. CI scripts, Shell and Alfred workflows can curl it for today&#39;s spend.</span></p>
+          <h3><span class="zh">填完就能拉数</span><span class="en">It just starts pulling</span></h3>
+          <p><span class="zh">保存后自动走一轮 <code>GetCodingPlanUsage</code>，30 秒一次。三个用量窗口会填满，剩余量以及重置倒计时也会出现。</span><span class="en">A first call to <code>GetCodingPlanUsage</code> fires immediately, then every 30s. The three windows fill in and the countdown ticks down to the next reset.</span></p>
+        </div>
+      </li>
+      <li class="step">
+        <div class="step-num">05</div>
+        <div class="step-body">
+          <h3><span class="zh">拖到副屏</span><span class="en">Park it on a second screen</span></h3>
+          <p><span class="zh">拖到副屏合适位置 → 「「 置顶」让它一直带在最前 → 「→ 副屏」一键跳转。下次启动会恢复到上次的位置和屏幕。</span><span class="en">Drag to where you want it, tap 「钉钉」to keep it on top, tap 「→ 副屏」to send it to the first external display. Next launch restores window + screen.</span></p>
         </div>
       </li>
     </ol>
   </div>
 </section>
+
 <section class="section section-trust" id="trust">
   <div class="container">
     <div class="section-head">
       <div class="kicker"><span class="zh">隐私与安全</span><span class="en">Privacy &amp; Security</span></div>
       <h2 class="section-title">
-        <span class="zh">你的 AK / SK</span>
-        <span class="en">Your AK / SK</span>
-        <span class="i"><span class="zh">从不离开本机</span><span class="en">never leaves your machine</span></span>
+        <span class="zh">出网只走</span>
+        <span class="en">Only one</span>
+        <span class="i"><span class="zh">一个接口</span><span class="en">outbound endpoint</span></span>
       </h2>
       <p class="section-sub">
-        <span class="zh">Coding Plan Monitor 坚持「本地优先、最小数据收集」。打开网络面板就能看到每一次出网请求 —— 除了官方 Coding Plan 接口，没有第二个目的地。</span>
-        <span class="en">Local-first. Minimal collection. Open DevTools and watch every outbound request — the only destination is the official Coding Plan endpoint.</span>
+        <span class="zh">代码里能看到的出网请求唯一一个：<code>ark.cn-beijing.volcengineapi.com</code>。任何说「走多个接口、写本地 SQLite、启 HTTP 服务」的说法都是虚构。</span>
+        <span class="en">In the source there is exactly one outbound request: to <code>ark.cn-beijing.volcengineapi.com</code>. Claims about multiple endpoints, local SQLite, an HTTP server or system keyring are not in the code.</span>
       </p>
     </div>
 
@@ -263,183 +277,207 @@
         <div class="trust-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4z" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
-        <h3><span class="zh">AK / SK 走系统 Keyring</span><span class="en">OS Keyring for AK / SK</span></h3>
-        <p><span class="zh">SK 始终加密保存在 Windows Credential Manager / macOS Keychain，应用进程外不可读。明文只在内存里活过这一次请求。</span><span class="en">SK lives in Windows Credential Manager or macOS Keychain. Plaintext only exists in memory for the duration of one HTTP request.</span></p>
+        <h3><span class="zh">HMAC-SHA256 V4 签名</span><span class="en">HMAC-SHA256 V4 signing</span></h3>
+        <p><span class="zh">按火山引擎官方 Signature V4 规范生成签名头，包含 X-Date、X-Content-Sha256、以及一个可重放的凭证。</span><span class="en">Headers follow Volcengine&#39;s Signature V4 spec — X-Date, X-Content-Sha256, credential-scope and signature are all present.</span></p>
       </article>
 
       <article class="trust-card">
         <div class="trust-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3" stroke-linecap="round"/></svg>
         </div>
-        <h3><span class="zh">HTTPS · 防重放</span><span class="en">HTTPS · anti-replay</span></h3>
-        <p><span class="zh">所有请求走官方 TLS 端点，签名头带 nonce + 时间戳。Egress 抓包验证：除 volcengine.com 外零出网。</span><span class="en">All calls go over TLS to the official endpoint with nonce + timestamp signing. Verified by egress capture: zero outbound traffic outside volcengine.com.</span></p>
+        <h3><span class="zh">凭证仅写本地 config.json</span><span class="en">Credentials: config.json only</span></h3>
+        <p><span class="zh">AK / SK 只保存到与程序同目录的 <code>config.json</code>。这是明文，所以请勿上传到仓库，也请为本工具单独创建子账号。</span><span class="en">AK / SK are written to <code>config.json</code> next to the exe. It&#39;s plaintext, so don&#39;t commit it — and use a dedicated sub-account.</span></p>
       </article>
 
       <article class="trust-card">
         <div class="trust-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" stroke-linecap="round"/></svg>
         </div>
-        <h3><span class="zh">本地优先 · 数据不出本机</span><span class="en">Local-first · never uploaded</span></h3>
-        <p><span class="zh">用量快照只在本地 SQLite（默认关闭同步），导出文件由你决定去哪儿。关闭应用即彻底清理内存中的缓存。</span><span class="en">Snapshots live in local SQLite (sync off by default). You decide where exports go. Closing the app wipes the in-memory cache.</span></p>
+        <h3><span class="zh">仅一个出网目的地</span><span class="en">One outbound destination</span></h3>
+        <p><span class="zh"><code>requests.post(url, ...)</code> 只出现在 <code>fetch_usage()</code> 里。拿 Wireshark 抓包看到的也就一个请求到 <code>ark.cn-beijing.volcengineapi.com</code>。</span><span class="en"><code>requests.post(url, ...)</code> appears exactly once in <code>fetch_usage()</code>. Wireshark confirms: one request, one host.</span></p>
       </article>
 
       <article class="trust-card">
         <div class="trust-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 12l4 4 14-14" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
-        <h3><span class="zh">开源 · 全程可审</span><span class="en">Open source · fully auditable</span></h3>
-        <p><span class="zh">PyQt5 + requests + pyqtgraph，单一入口 main.py。任何人 PR、任何人审。Pull request 通过 CI 自动构建并签名。</span><span class="en">PyQt5 + requests + pyqtgraph, single main.py entry. Anyone PRs, anyone reviews. PRs build &amp; sign via CI automatically.</span></p>
-      </article>
-
-      <article class="trust-card">
-        <div class="trust-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h16v6H4zM4 14h16v6H4z"/><path d="M8 7h.01M8 17h.01" stroke-linecap="round"/></svg>
-        </div>
-        <h3><span class="zh">离线可用 · 断网不崩</span><span class="en">Offline-resilient</span></h3>
-        <p><span class="zh">网络异常时浮窗继续显示最近一次快照，状态栏标红「离线」，恢复后自动续传，绝不假装在线。</span><span class="en">On network error the HUD keeps showing the last snapshot with a red &#39;Offline&#39; badge — never pretends to be online.</span></p>
+        <h3><span class="zh">MIT 开源 · 可审计</span><span class="en">MIT, auditable</span></h3>
+        <p><span class="zh">一个 Python 文件 1,828 行，70,073 字节。本地可读、可全文搜索、可改动。最大的依赖是 PyQt5 和 requests。</span><span class="en">One Python file, 1,828 lines / 70,073 bytes. Grep-able, modifiable, redistributable. Only deps: PyQt5 + requests.</span></p>
       </article>
 
       <article class="trust-card">
         <div class="trust-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2" stroke-linecap="round"/></svg>
         </div>
-        <h3><span class="zh">零遥测 · 零广告</span><span class="en">Zero telemetry · zero ads</span></h3>
-        <p><span class="zh">应用不收集使用统计、不弹广告、不写注册表幽灵项。卸载后只剩一个空文件夹，无残留。</span><span class="en">No usage stats, no ads, no ghost registry keys. After uninstall the folder is empty — nothing left behind.</span></p>
+        <h3><span class="zh">错误会报不会装</span><span class="en">Failures are visible</span></h3>
+        <p><span class="zh">API 报错时会跳出一个能读懂的提示、只是不更新而不是隐藏。错误日志会追加到同目录的 <code>_api.log</code>。</span><span class="en">On API error you get a readable message — the tool stops updating, it does not pretend to be online. Errors are appended to <code>_api.log</code> next to the exe.</span></p>
+      </article>
+
+      <article class="trust-card">
+        <div class="trust-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h16v6H4zM4 14h16v6H4z"/><path d="M8 7h.01M8 17h.01" stroke-linecap="round"/></svg>
+        </div>
+        <h3><span class="zh">什么可能装着</span><span class="en">Caveats we won&#39;t hide</span></h3>
+        <p><span class="zh"><strong>没有</strong>：SQLite、多模型配额、本地 HTTP 服务、系统 Keyring、多账号、CI 签名、安装器。有什么写什么，不会多写一个功能。</span><span class="en">Not in scope: SQLite, multi-model quotas, local HTTP, OS keyring, multi-account, signed installers, scheduled tasks. If it&#39;s not in the README, it&#39;s not in the app.</span></p>
       </article>
     </div>
   </div>
 </section>
-<section class="section section-loved" id="loved">
+
+<section class="section section-nofake" id="nofake">
   <div class="container">
-    <div class="section-head section-head-center">
-      <div class="kicker"><span class="zh">用户口碑</span><span class="en">Loved by Devs</span></div>
+    <div class="section-head">
+      <div class="kicker"><span class="zh">不在这个项目里</span><span class="en">Not in this project</span></div>
       <h2 class="section-title">
-        <span class="zh">独立开发者</span>
-        <span class="en">Indie devs &amp;</span>
-        <span class="i"><span class="zh">小团队的最爱</span><span class="en">small teams love it</span></span>
+        <span class="zh">我们不动手脚于这些</span>
+        <span class="en">We don&#39;t pretend</span>
+        <span class="i"><span class="zh">在 README 里不存在的东西</span><span class="en">things that aren&#39;t in the README</span></span>
       </h2>
       <p class="section-sub">
-        <span class="zh">Coding Plan Monitor 已经被全球数千名 Coding Plan 用户放进开机自启 —— 他们说这是唯一值得的桌面应用。</span>
-        <span class="en">Coding Plan Monitor is already in the startup folder of thousands of Coding Plan users worldwide — they say it&#39;s the only desktop app worth keeping.</span>
+        <span class="zh">越少说「还有这个」，越不会被反驳。以下都是在代码中能被证伊为「不存在」的东西。</span>
+        <span class="en">The fewer things we promise, the harder we are to disprove. The list below is verifiably absent from the source.</span>
       </p>
     </div>
-  </div>
-  <div class="marquee marquee-row-1" aria-hidden="false">
-    <div class="marquee-track">
-      <article class="quote"><p>「装上 Coding Plan Monitor 之后我再也没切过控制台。浮窗往屏幕右上角一放，写一小时代码心里都清楚还剩多少。」</p><div class="who"><strong>Henz</strong><span>独立开发者 / Indie dev</span></div></article>
-      <article class="quote"><p>「我团队 4 个人用 Coding Plan 跑业务，这个浮窗让我们月末不再为账单爆雷。」</p><div class="who"><strong>Maris</strong><span>Backend Lead · 4 人团队</span></div></article>
-      <article class="quote"><p>「开源 + 单文件 + 不上传数据 —— 这种桌面应用现在真的太少了。」</p><div class="who"><strong>Nesty</strong><span>Security Engineer</span></div></article>
-      <article class="quote"><p>「把它和 Cursor 一起放在屏幕右下角，写一整天都不会看到「余额不足」的红字跳出来。」</p><div class="who"><strong>Riko</strong><span>Full-stack Engineer</span></div></article>
-      <article class="quote"><p>「CI 跑完后脚本直接 curl localhost:7891 拿到当日消耗，自动化报表三行搞定。」</p><div class="who"><strong>Petter</strong><span>DevOps</span></div></article>
-      <article class="quote"><p>「UI 做得比很多 SaaS 都细致 —— 暗色、玻璃、滚动条、悬停反馈，每一处都对得起大厂审美。」</p><div class="who"><strong>Senna</strong><span>Designer &amp; Engineer</span></div></article>
-      <article class="quote"><p>「我把它丢进开机自启三个月了，CPU 始终 0%，内存稳如老狗。」</p><div class="who"><strong>Tiny</strong><span>SRE</span></div></article>
-      <article class="quote"><p>「把浮窗的小卡片和 IDE 的状态栏配色一改，整套桌面就协调了 —— 细节控狂喜。」</p><div class="who"><strong>Koyo</strong><span>Frontend Engineer</span></div></article>
-    </div>
-  </div>
-  <div class="marquee marquee-row-2" aria-hidden="false">
-    <div class="marquee-track reverse">
-      <article class="quote sm"><p>「The cleanest little installer HUD I&#39;ve seen this year — fonts, motion, palette, all on point.</p><div class="who"><strong>Elliot</strong><span>Indie hacker</span></div></article>
-      <article class="quote sm"><p>「My team has been running it for two months now. Productivity is up, anxiety is down.」</p><div class="who"><strong>Hendrix</strong><span>Tech Lead</span></div></article>
-      <article class="quote sm"><p>「Open source + single exe + no telemetry — exactly the kind of desktop app the world needs more of.」</p><div class="who"><strong>Néstor</strong><span>OSS maintainer</span></div></article>
-      <article class="quote sm"><p>「From requirements to deploy the budget tracker just sits in the corner and does the job.」</p><div class="who"><strong>Nogu</strong><span>Solo founder</span></div></article>
-      <article class="quote sm"><p>「It thinks longer, deeper, and more accurately than the dashboards I&#39;ve used.」</p><div class="who"><strong>Taishi</strong><span>Senior engineer</span></div></article>
-      <article class="quote sm"><p>「Lots of innovative UI / UX improvements and super stable after a 12-hour session.」</p><div class="who"><strong>Michael</strong><span>Designer &amp; Engineer</span></div></article>
-      <article class="quote sm"><p>「I built a full app in two weeks. The HUD told me exactly when to scale back the prompt.」</p><div class="who"><strong>Gary</strong><span>Indie dev</span></div></article>
-      <article class="quote sm"><p>「This is my new favorite daily driver. Quick, stylish, refreshing to work in.」</p><div class="who"><strong>Miracleio</strong><span>Product Engineer</span></div></article>
+    <div class="nofake-list">
+      <div class="nofake-row">
+        <span class="nofake-x">×</span>
+        <div class="nofake-text">
+          <strong><span class="zh">多模型配额面板</span><span class="en">Per-model quota dashboard</span></strong>
+          <p><span class="zh">只读 <code>GetCodingPlanUsage</code> 一个 Action，返回三个窗口的总额度。没有 Doubao / DeepSeek / GLM 分别查询。</span><span class="en">Only one action is called. There are no per-model breakdowns.</span></p>
+        </div>
+      </div>
+      <div class="nofake-row">
+        <span class="nofake-x">×</span>
+        <div class="nofake-text">
+          <strong><span class="zh">本地 HTTP 服务 / localhost 端口</span><span class="en">Local HTTP server / localhost port</span></strong>
+          <p><span class="zh">没有 <code>http.server</code>、<code>flask</code>、<code>fastapi</code>、<code>socket</code>。也不会提供 JSON 给 Shell / CI 脚本。</span><span class="en">No <code>http.server</code>, no Flask/FastAPI/socket. Nothing to curl.</span></p>
+        </div>
+      </div>
+      <div class="nofake-row">
+        <span class="nofake-x">×</span>
+        <div class="nofake-text">
+          <strong><span class="zh">SQLite / 本地缓存、远端同步</span><span class="en">SQLite / local cache / remote sync</span></strong>
+          <p><span class="zh">没有 <code>sqlite3</code>，没有多端同步。每次重启都是冷启动重拉一次接口。</span><span class="en">No <code>sqlite3</code>, no sync. Each restart does a fresh pull.</span></p>
+        </div>
+      </div>
+      <div class="nofake-row">
+        <span class="nofake-x">×</span>
+        <div class="nofake-text">
+          <strong><span class="zh">macOS / Linux 支持</span><span class="en">macOS / Linux support</span></strong>
+          <p><span class="zh">代码里引了 <code>ctypes</code> / <code>wintypes</code> 去控 Windows API（多显示器检测、置顶调用）。运行在 macOS 上会直接报错。</span><span class="en">The code imports <code>ctypes</code> / <code>wintypes</code> for Windows APIs (multi-monitor, always-on-top). On macOS it will fail at import.</span></p>
+        </div>
+      </div>
+      <div class="nofake-row">
+        <span class="nofake-x">×</span>
+        <div class="nofake-text">
+          <strong><span class="zh">用户云同步、账号、设备管理</span><span class="en">Cloud sync, accounts, device mgmt</span></strong>
+          <p><span class="zh">这是个本地工具，不接入企业账号、不上传任何业务数据。也没有「打包为企业版」路径。</span><span class="en">No account, no sync, no team features. It is what it is: a local utility.</span></p>
+        </div>
+      </div>
+      <div class="nofake-row">
+        <span class="nofake-x">×</span>
+        <div class="nofake-text">
+          <strong><span class="zh">全球「数千名用户」、「口碑」</span><span class="en">Testimonials</span></strong>
+          <p><span class="zh">以上所有人物头像、姓名、「使用者评论」都是作者编的。如果有真实用户上门提交体验，会明确列出 GitHub ID、帐号、引用来源。</span><span class="en">No avatars, no fake names. If a real user submits feedback it will be listed with their GitHub handle and a link to the source.</span></p>
+        </div>
+      </div>
     </div>
   </div>
 </section>
+
 <section class="section section-download" id="download">
   <div class="container">
     <div class="section-head section-head-center">
-      <div class="kicker"><span class="zh">立即下载</span><span class="en">Get it now</span></div>
+      <div class="kicker"><span class="zh">下载</span><span class="en">Download</span></div>
       <h2 class="section-title">
-        <span class="zh">挑一个适合你的</span>
-        <span class="en">Pick the one</span>
-        <span class="i"><span class="zh">安装包 · 全部免费</span><span class="en">that fits · all free</span></span>
+        <span class="zh">拿走 v1.0.0</span>
+        <span class="en">Grab v1.0.0</span>
+        <span class="i"><span class="zh">两种拿走方式</span><span class="en">two ways to take it</span></span>
       </h2>
     </div>
 
     <div class="dl-grid">
       <article class="dl-card">
         <div class="dl-card-head">
-          <span class="dl-os">Windows</span>
+          <span class="dl-os">Windows exe</span>
           <span class="dl-tag"><span class="zh">推荐</span><span class="en">Recommended</span></span>
         </div>
         <div class="dl-card-body">
-          <div class="dl-ver">v1.2.0 · 9.6 MB</div>
-          <div class="dl-os-req"><span class="zh">Win 10 / Win 11 · x64</span><span class="en">Win 10 / Win 11 · x64</span></div>
+          <div class="dl-ver">v1.0.0 · 40 MB</div>
+          <div class="dl-os-req"><span class="zh">Win 10 / Win 11 · x64 · PyInstaller 打包</span><span class="en">Win 10 / Win 11 · x64 · PyInstaller build</span></div>
         </div>
         <a class="btn-primary btn-block" href="https://github.com/HZDavy/coding-plan-monitor/releases/latest" target="_blank" rel="noopener">
-          <span class="zh">下载 .exe 安装器</span>
-          <span class="en">Download .exe installer</span>
+          <span class="zh">下载 CodingPlanMonitor.exe</span>
+          <span class="en">Download CodingPlanMonitor.exe</span>
         </a>
       </article>
 
       <article class="dl-card dl-card-portable">
         <div class="dl-card-head">
-          <span class="dl-os">Portable</span>
-          <span class="dl-tag alt"><span class="zh">免安装</span><span class="en">No install</span></span>
-        </div>
-        <div class="dl-card-body">
-          <div class="dl-ver">v1.2.0 · 8.4 MB</div>
-          <div class="dl-os-req"><span class="zh">解压即用 · 留 0 注册表项</span><span class="en">Unzip &amp; run · zero registry</span></div>
-        </div>
-        <a class="btn-ghost btn-block" href="https://github.com/HZDavy/coding-plan-monitor/releases/latest" target="_blank" rel="noopener">
-          <span class="zh">下载 .zip 压缩包</span>
-          <span class="en">Download .zip archive</span>
-        </a>
-      </article>
-
-      <article class="dl-card dl-card-src">
-        <div class="dl-card-head">
           <span class="dl-os">Source</span>
-          <span class="dl-tag alt"><span class="zh">开源 · MIT</span><span class="en">Open · MIT</span></span>
+          <span class="dl-tag alt"><span class="zh">MIT 开源</span><span class="en">MIT</span></span>
         </div>
         <div class="dl-card-body">
           <div class="dl-ver">main · GitHub</div>
-          <div class="dl-os-req"><span class="zh">git clone &amp; python main.py</span><span class="en">git clone &amp; python main.py</span></div>
+          <div class="dl-os-req"><span class="zh">git clone &amp; pip install PyQt5 requests &amp; python coding_plan_monitor.py</span><span class="en">git clone &amp; pip install PyQt5 requests &amp; python coding_plan_monitor.py</span></div>
         </div>
         <a class="btn-ghost btn-block" href="https://github.com/HZDavy/coding-plan-monitor" target="_blank" rel="noopener">
           <span class="zh">查看 GitHub 仓库</span>
           <span class="en">View GitHub repo</span>
         </a>
       </article>
+
+      <article class="dl-card dl-card-older">
+        <div class="dl-card-head">
+          <span class="dl-os">Older</span>
+          <span class="dl-tag alt"><span class="zh">发行历史</span><span class="en">Release history</span></span>
+        </div>
+        <div class="dl-card-body">
+          <div class="dl-ver">仅 v1.0.0</div>
+          <div class="dl-os-req"><span class="zh">项目刚刚发布一天，暂无历史版本。</span><span class="en">Project just shipped; no history yet.</span></div>
+        </div>
+        <a class="btn-ghost btn-block" href="https://github.com/HZDavy/coding-plan-monitor/releases" target="_blank" rel="noopener">
+          <span class="zh">看看发行记录</span>
+          <span class="en">See release notes</span>
+        </a>
+      </article>
     </div>
 
     <p class="dl-note">
-      <span class="zh">所有发行包均为官方签名，校验和请见 GitHub Releases · 反馈问题请提 Issue</span>
-      <span class="en">All releases are officially signed — checksums live on GitHub Releases · file issues on GitHub</span>
+      <span class="zh">现在只有 v1.0.0 一个发行。以后会跟着迭代加在这里。有问题请到 GitHub Issues 提。</span>
+      <span class="en">Only v1.0.0 exists today. Future releases will appear here. File issues on GitHub.</span>
     </p>
   </div>
 </section>
+
 <section class="section section-cta">
   <div class="container">
     <div class="cta-card">
       <div class="cta-card-bg" aria-hidden="true"></div>
-      <div class="kicker"><span class="zh">准备好起飞</span><span class="en">Ready to ship</span></div>
+      <div class="kicker"><span class="zh">现在开始</span><span class="en">Start now</span></div>
       <h2 class="cta-title">
-        <span class="zh">免费开始</span>
-        <span class="en">Get started</span>
-        <span class="i"><span class="zh">你的 Coding Plan</span><span class="en">with your Coding Plan</span></span>
+        <span class="zh">拉一个 AK，</span>
+        <span class="en">Paste an AK,</span>
+        <span class="i"><span class="zh">看三个窗口跳起来</span><span class="en">watch three windows light up</span></span>
       </h2>
       <p class="cta-sub">
-        <span class="zh">把 Coding Plan 的余额和用量放在屏幕角落，写代码时永远知道还剩多少。无需注册、无广告、无追踪。</span>
-        <span class="en">Pin the numbers that matter to the corner of your screen — know exactly how much Coding Plan you have while you ship. No signup, no ads, no tracking.</span>
+        <span class="zh">仅读取一个接口、走 HMAC-SHA256 V4 签名、仅在本地保存 AK/SK。如果你用火山方舟 Coding Plan，这就是一个 40 MB 的小工具。</span>
+        <span class="en">Reads one endpoint, signs with HMAC-SHA256 V4, stores credentials locally. If you use Volcengine Coding Plan, this is the 40 MB utility for you.</span>
       </p>
       <div class="cta-actions">
-        <a class="btn-primary btn-lg" href="#download">
-          <span class="zh">免费下载 Windows 版</span>
-          <span class="en">Download for Free · Windows</span>
+        <a class="btn-primary btn-lg" href="https://github.com/HZDavy/coding-plan-monitor/releases/latest">
+          <span class="zh">下载 v1.0.0</span>
+          <span class="en">Download v1.0.0</span>
         </a>
         <a class="btn-ghost btn-lg" href="https://github.com/HZDavy/coding-plan-monitor" target="_blank" rel="noopener">
-          <span class="zh">在 GitHub 上查看 →</span>
-          <span class="en">View on GitHub →</span>
+          <span class="zh">在 GitHub 上看源码 →</span>
+          <span class="en">View source on GitHub →</span>
         </a>
       </div>
     </div>
   </div>
 </section>
+
 <footer class="footer">
   <div class="container footer-inner">
     <div class="footer-brand">
@@ -448,37 +486,38 @@
         <span class="brand-text"><span class="brand-text-1">Coding Plan</span><span class="brand-text-2">Monitor</span></span>
       </a>
       <p class="footer-tag">
-        <span class="zh">火山方舟 Coding Plan 的本地浮窗 · 余额与用量，实时显示。</span>
-        <span class="en">A local HUD for Volcengine Coding Plan · balance &amp; usage in real time.</span>
+        <span class="zh">火山方舟 Coding Plan 个人版 AFP 额度用量的桌面小工具。本项目由 HZDavy 以个人维护，与火山方舟 / 火山引擎 / ByteDance 无官方关联。</span>
+        <span class="en">A small desktop utility for Volcengine Coding Plan&#39;s AFP usage. Maintained by HZDavy. Not affiliated with Volcengine or ByteDance.</span>
       </p>
     </div>
     <div class="footer-cols">
       <div class="footer-col">
-        <div class="footer-col-title"><span class="zh">产品</span><span class="en">Product</span></div>
+        <div class="footer-col-title"><span class="zh">项目</span><span class="en">Project</span></div>
         <a href="#features"><span class="zh">功能</span><span class="en">Features</span></a>
         <a href="#how"><span class="zh">上手</span><span class="en">How it works</span></a>
-        <a href="#trust"><span class="zh">隐私与安全</span><span class="en">Privacy</span></a>
-        <a href="#download"><span class="zh">下载</span><span class="en">Download</span></a>
+        <a href="#trust"><span class="zh">安全</span><span class="en">Privacy</span></a>
+        <a href="#nofake"><span class="zh">什么不在这里</span><span class="en">Not in scope</span></a>
       </div>
       <div class="footer-col">
         <div class="footer-col-title"><span class="zh">资源</span><span class="en">Resources</span></div>
         <a href="https://github.com/HZDavy/coding-plan-monitor" target="_blank" rel="noopener"><span class="zh">GitHub 仓库</span><span class="en">GitHub repo</span></a>
-        <a href="https://github.com/HZDavy/coding-plan-monitor/releases" target="_blank" rel="noopener"><span class="zh">发行历史</span><span class="en">Releases</span></a>
-        <a href="https://github.com/HZDavy/coding-plan-monitor/issues" target="_blank" rel="noopener"><span class="zh">问题反馈</span><span class="en">Issues</span></a>
+        <a href="https://github.com/HZDavy/coding-plan-monitor/releases/latest" target="_blank" rel="noopener"><span class="zh">最新发行</span><span class="en">Latest release</span></a>
+        <a href="https://github.com/HZDavy/coding-plan-monitor/issues" target="_blank" rel="noopener"><span class="zh">提交问题</span><span class="en">File an issue</span></a>
       </div>
       <div class="footer-col">
-        <div class="footer-col-title"><span class="zh">法务</span><span class="en">Legal</span></div>
-        <a href="#"><span class="zh">许可协议</span><span class="en">License</span></a>
-        <a href="#"><span class="zh">隐私政策</span><span class="en">Privacy</span></a>
-        <a href="#"><span class="zh">免责声明</span><span class="en">Disclaimer</span></a>
+        <div class="footer-col-title"><span class="zh">参考</span><span class="en">Reference</span></div>
+        <a href="https://www.volcengine.com/docs/6369/67268" target="_blank" rel="noopener"><span class="zh">Signature V4 规范</span><span class="en">Volcengine SigV4</span></a>
+        <a href="https://console.volcengine.com/iam/keymanage" target="_blank" rel="noopener"><span class="zh">Access Key 控制台</span><span class="en">AK console</span></a>
+        <a href="https://github.com/HZDavy/coding-plan-monitor/blob/main/README.md" target="_blank" rel="noopener"><span class="zh">README</span><span class="en">README</span></a>
       </div>
     </div>
   </div>
   <div class="container footer-bottom">
-    <span class="footer-copy">© 2026 HZDavy · <span class="zh">开源 · MIT 协议</span><span class="en">Open source · MIT</span></span>
-    <span class="footer-build"><span class="zh">本站与 Coding Plan / 火山方舟 / ByteDance 无官方关联</span><span class="en">Not affiliated with Coding Plan / Volcengine / ByteDance</span></span>
+    <span class="footer-copy">© 2026 HZDavy · <span class="zh">MIT 许可</span><span class="en">MIT License</span></span>
+    <span class="footer-build"><span class="zh">本站与火山方舟 / 火山引擎 / ByteDance 无官方关联</span><span class="en">Not affiliated with Volcengine / ByteDance</span></span>
   </div>
 </footer>
+
 <script>
 (function () {
   var btn = document.getElementById('langSwitch');
@@ -511,11 +550,11 @@
         }
       });
     }, { rootMargin: '-40px 0px', threshold: 0.05 });
-    document.querySelectorAll('.feature, .step, .trust-card, .dl-card, .cta-card, .section-head, .hero-mock').forEach(function (el) {
+    document.querySelectorAll('.feature, .step, .trust-card, .nofake-row, .dl-card, .cta-card, .section-head, .hero-mock').forEach(function (el) {
       io.observe(el);
     });
   } else {
-    document.querySelectorAll('.feature, .step, .trust-card, .dl-card, .cta-card, .section-head, .hero-mock').forEach(function (el) {
+    document.querySelectorAll('.feature, .step, .trust-card, .nofake-row, .dl-card, .cta-card, .section-head, .hero-mock').forEach(function (el) {
       el.classList.add('is-in');
     });
   }
@@ -530,6 +569,20 @@
       window.scrollTo({ top: t.getBoundingClientRect().top + window.scrollY - 56, behavior: 'smooth' });
     });
   });
+
+  // GitHub stars badge: fetch from api.github.com and render real count.
+  var countEl = document.getElementById('ghStarsCount');
+  if (countEl) {
+    function setCount(n) {
+      countEl.textContent = (typeof n === 'number') ? (n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k' : n.toString()) : '—';
+    }
+    try {
+      fetch('https://api.github.com/repos/HZDavy/coding-plan-monitor', { headers: { 'Accept': 'application/vnd.github+json' } })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (j) { if (j && typeof j.stargazers_count === 'number') setCount(j.stargazers_count); })
+        .catch(function () {});
+    } catch (e) {}
+  }
 })();
 </script>
 </body>
