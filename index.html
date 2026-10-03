@@ -595,6 +595,18 @@
       window.scrollTo({ top: t.getBoundingClientRect().top + window.scrollY - 56, behavior: 'smooth' });
     });
   });
+
+  // 跟随鼠标的光晕
+  (function () {
+    var sel = '.feature, .step, .trust-card, .dl-card, .cta-card, .btn-primary, .btn-ghost';
+    document.addEventListener('mousemove', function (e) {
+      var el = e.target && e.target.closest ? e.target.closest(sel) : null;
+      if (!el) return;
+      var r = el.getBoundingClientRect();
+      el.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100).toFixed(1) + '%');
+      el.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100).toFixed(1) + '%');
+    });
+  })();
 })();
 </script>
 </body>

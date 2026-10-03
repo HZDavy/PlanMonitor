@@ -1202,14 +1202,27 @@ body.lang-en .lang-switch .lang-off { color: var(--text); }
   .quote, .quote.sm { width: 280px; }
 }
 
-/* ===== HOVER GLOW ===== */
+/* ===== CURSOR GLOW ===== */
+.feature, .step, .trust-card, .dl-card, .cta-card,
 .btn-primary, .btn-ghost {
   position: relative;
 }
-.btn-primary:hover, .btn-ghost:hover,
-.feature:hover, .step:hover, .trust-card:hover, .dl-card:hover, .cta-card:hover,
-.dl-btn:hover {
-  box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.12),
-              0 10px 34px -10px rgba(16, 185, 129, 0.22),
-              0 0 26px -6px rgba(16, 185, 129, 0.10);
+.feature::before, .step::before, .trust-card::before, .dl-card::before, .cta-card::before,
+.btn-primary::before, .btn-ghost::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .35s ease;
+  background: radial-gradient(220px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(16, 185, 129, 0.30) 0%,
+    rgba(16, 185, 129, 0.10) 38%,
+    transparent 62%);
+}
+.feature:hover::before, .step:hover::before, .trust-card:hover::before,
+.dl-card:hover::before, .cta-card:hover::before,
+.btn-primary:hover::before, .btn-ghost:hover::before {
+  opacity: 1;
 }
