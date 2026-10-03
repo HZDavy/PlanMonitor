@@ -777,6 +777,11 @@ body.lang-en .lang-switch .lang-off { color: var(--text); }
   transform: translateY(0);
   transition: opacity .6s ease, transform .6s ease;
 }
+.step:hover {
+  border-color: var(--line-2);
+  background: rgba(255, 255, 255, 0.04);
+  transform: translateY(-2px);
+}
 .step-num {
   font-family: 'Instrument Serif', 'Times New Roman', serif;
   font-style: italic;
@@ -1004,7 +1009,11 @@ body.lang-en .lang-switch .lang-off { color: var(--text); }
 .cta-card.is-in {
   opacity: 1;
   transform: translateY(0);
-  transition: opacity .8s ease, transform .8s ease;
+  transition: opacity .8s ease, transform .8s ease, border-color .2s ease;
+}
+.cta-card:hover {
+  border-color: var(--line-2);
+  transform: translateY(-2px);
 }
 .cta-card-bg {
   position: absolute;
@@ -1217,9 +1226,9 @@ body.lang-en .lang-switch .lang-off { color: var(--text); }
   opacity: 0;
   transition: opacity .35s ease;
   background: radial-gradient(220px circle at var(--mx, 50%) var(--my, 50%),
-    rgba(255, 255, 255, 0.30) 0%,
-    rgba(255, 255, 255, 0.10) 38%,
-    transparent 62%);
+    rgba(16, 185, 129, 0.16) 0%,
+    rgba(16, 185, 129, 0.05) 40%,
+    transparent 65%);
 }
 .feature:hover::before, .step:hover::before, .trust-card:hover::before,
 .dl-card:hover::before, .cta-card:hover::before,
