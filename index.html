@@ -511,17 +511,46 @@
       </div>
       <div class="footer-col">
         <div class="footer-col-title"><span class="zh">法务</span><span class="en">Legal</span></div>
-        <a href="#"><span class="zh">许可协议</span><span class="en">License</span></a>
-        <a href="#"><span class="zh">隐私政策</span><span class="en">Privacy</span></a>
-        <a href="#"><span class="zh">免责声明</span><span class="en">Disclaimer</span></a>
+        <a href="#" data-modal="#legalModal" data-modal-title="license"><span class="zh">许可协议</span><span class="en">License</span></a>
+        <a href="#" data-modal="#legalModal" data-modal-title="privacy"><span class="zh">隐私政策</span><span class="en">Privacy</span></a>
+        <a href="#" data-modal="#legalModal" data-modal-title="disclaimer"><span class="zh">免责声明</span><span class="en">Disclaimer</span></a>
       </div>
     </div>
   </div>
-  <div class="container footer-bottom">
+  <div class="footer-bottom-copy">
     <span class="footer-copy">© 2026 HZDavy · <span class="zh">开源 · MIT 协议</span><span class="en">Open source · MIT</span></span>
     <span class="footer-build"><span class="zh">本站与 Coding Plan / Agent Plan / 火山方舟 / ByteDance 无官方关联</span><span class="en">Not affiliated with Coding Plan / Agent Plan / Volcengine / ByteDance</span></span>
   </div>
 </footer>
+
+<div class="legal-modal" id="legalModal" role="dialog" aria-modal="true" aria-label="Legal" hidden>
+  <div class="legal-modal-overlay" data-legal-close></div>
+  <div class="legal-modal-box">
+    <button class="legal-modal-close" data-legal-close type="button" aria-label="Close">&times;</button>
+    <h3 class="legal-modal-title" data-legal-title="license"><span class="zh">许可协议</span><span class="en">License</span></h3>
+    <h3 class="legal-modal-title" data-legal-title="privacy"><span class="zh">隐私政策</span><span class="en">Privacy Policy</span></h3>
+    <h3 class="legal-modal-title" data-legal-title="disclaimer"><span class="zh">免责声明</span><span class="en">Disclaimer</span></h3>
+
+    <div class="legal-modal-content" data-legal-content="license">
+      <p class="zh"><b>MIT License</b></p>
+      <p class="zh">本软件以 MIT 协议发布。复制、修改、分发供个人或商业使用均免费，需在显著位置保留版权声明与许可文本。</p>
+      <p class="en"><b>MIT License</b></p>
+      <p class="en">This software is released under the MIT License. Use, copy, modify and distribute it freely for personal or commercial purposes, provided the copyright notice and permission notice are preserved.</p>
+    </div>
+
+    <div class="legal-modal-content" data-legal-content="privacy">
+      <p class="zh">本应用为本地 HUD 工具，仅在你主动配置后访问一次火山引擎 API 账户用量。不收集使用统计、不传播数据、不上传任何个人信息，也无需联网访问第三方。</p>
+      <p class="en">This app is a local HUD tool. It only calls Volcengine API once to fetch your plan usage after you configure it. No telemetry, no data collection, no personal information is uploaded, and no third-party network access is performed.</p>
+    </div>
+
+    <div class="legal-modal-content" data-legal-content="disclaimer">
+      <p class="zh">本软件按"原样"提供，不附带任何明示或暗示的担保，包括适销性、特定用途适用性及非侵权。在任何情况下，作者均不因使用本软件而产生的任何损害承担责任。</p>
+      <p class="zh">本软件为独立开源项目，与 Coding Plan / Agent Plan / 火山方舟 / ByteDance 无官方关联。</p>
+      <p class="en">This software is provided "as is", without warranty of any kind, express or implied, including merchantability, fitness for a particular purpose and non-infringement. In no event shall the authors be liable for any damages arising from the use of this software.</p>
+    </div>
+  </div>
+</div>
+
 <script>
 (function () {
   var btn = document.getElementById('langSwitch');
@@ -594,6 +623,39 @@
       window.scrollTo({ top: t.getBoundingClientRect().top + window.scrollY - 56, behavior: 'smooth' });
     });
   });
+
+  // 法务弹窗：点击链接弹出对应内容
+  var legalModal = document.getElementById('legalModal');
+  function openLegal(key) {
+    if (!legalModal) return;
+    legalModal.querySelectorAll('[data-legal-title]').forEach(function (h) {
+      h.hidden = h.getAttribute('data-legal-title') !== key;
+    });
+    legalModal.querySelectorAll('[data-legal-content]').forEach(function (c) {
+      c.hidden = c.getAttribute('data-legal-content') !== key;
+    });
+    legalModal.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLegal() {
+    if (!legalModal) return;
+    legalModal.classList.remove('is-open');
+    document.body.style.overflow = '';
+  }
+  document.querySelectorAll('a[data-modal]').forEach(function (a) {
+    a.addEventListener('click', function (ev) {
+      ev.preventDefault();
+      openLegal(a.getAttribute('data-modal-title') || 'license');
+    });
+  });
+  if (legalModal) {
+    legalModal.querySelectorAll('[data-legal-close]').forEach(function (el) {
+      el.addEventListener('click', closeLegal);
+    });
+    document.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Escape' && legalModal.classList.contains('is-open')) closeLegal();
+    });
+  }
 })();
 </script>
 </body>
