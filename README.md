@@ -1,4 +1,4 @@
-# 火山引擎 Coding Plan / Agent Plan 用量监控小工具
+# Plan Monitor · 火山方舟 Coding Plan / Agent Plan 用量浮窗
 
 一个轻量、可固定在副屏的桌面小工具,用于监控火山方舟 Coding Plan / Agent Plan 个人版的 AFP 额度用量(近 5 小时、近一周、近一月三个窗口)。
 
