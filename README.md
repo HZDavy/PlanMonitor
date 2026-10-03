@@ -36,6 +36,7 @@
 |---|---|---|
 | 火山方舟 | ✅ 已支持 | 官方 OpenAPI 直接返回账户级额度与用量，接口稳定 |
 | 腾讯混元 TokenHub | 🚧 计划优先支持 | 提供 `DescribeModelQuota`、`ListUsage` 等官方 API，可查询模型配额与 token 用量，难度中等 |
+| Kimi（Moonshot） | 🚧 计划优先支持 | 提供 `/v1/users/me/balance` 余额查询 API，响应头也含 `X-RateLimit-*`，可实时查余额与速率，难度中等 |
 | Azure OpenAI | ⏳ 后续评估 | Azure Management API 可查询订阅/部署级配额，响应头也含剩余速率，但缺少账户余额 API，难度中等偏高 |
 | Google Gemini | ⏳ 后续评估 | Google Cloud Quotas API 可查询项目级配额（RPM/TPM/RPD），但无直接剩余额度 API，难度中等偏高 |
 | 阿里云百炼 | ⏳ 后续评估 | 仅有模型级限额 API，缺少账户剩余额度 API，需控制台解析或本地估算，难度偏高 |
@@ -50,7 +51,8 @@
 
 ## 后续功能计划
 
-- **更多厂商接入**：按上表顺序逐步支持腾讯混元、Azure OpenAI、Google Gemini 等公开 API 更完善的厂商；其余厂商会持续评估。
+- **更多厂商接入**：按上表顺序逐步支持腾讯混元、Kimi、Azure OpenAI、Google Gemini 等公开 API 更完善的厂商；其余厂商会持续评估。
+- **API 代理监控模式**：不依赖厂商是否提供 Plan/余额 API，工具可作为本地代理运行。你把应用的 API `base_url` 指向 Plan Monitor，它再把请求转发给真正的厂商 API，同时读取响应中的 `usage` 字段和 rate-limit 响应头，本地累计已用量并显示当前速率。这样 OpenAI、Anthropic、Groq、DeepSeek 等只有 `usage` 或响应头限额的厂商也能被统一监控。
 - **更多样式与自定义样式**：后续会提供可切换的 HUD 样式，包括类似“加速球”的交互形态——平时收缩为屏幕边缘的悬浮小球，点击后展开完整浮窗；支持吸附在屏幕四边、自定义透明度、尺寸、圆角和主题色，让不同场景下都能轻便常驻。
 
 ---
