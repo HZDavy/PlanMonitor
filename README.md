@@ -1,8 +1,8 @@
-[![🌐 访问官网](https://img.shields.io/badge/%E2%9C%82%E8%AE%BF%E9%97%AE%E5%AE%98%E7%BD%91-%E7%82%B9%E5%87%BB%E6%89%93%E5%BC%80-2dd47a?style=for-the-badge&logo=internet-explorer&logoColor=white)](https://hzdavy.github.io/plan-monitor/)
+[![🌐 访问官网](https://img.shields.io/badge/%E2%9C%82%E8%AE%BF%E9%97%AE%E5%AE%98%E7%BD%91-%E7%82%B9%E5%87%BB%E6%89%93%E5%BC%80-2dd47a?style=for-the-badge&logo=internet-explorer&logoColor=white)](https://hzdavy.github.io/PlanMonitor/)
 
-# <img src="https://hzdavy.github.io/plan-monitor/docs/logo.svg" width="30" height="30" alt="logo"> Plan Monitor
+# <img src="https://hzdavy.github.io/PlanMonitor/docs/logo.svg" width="30" height="30" alt="logo"> Plan Monitor
 
-[![Release](https://img.shields.io/github/v/release/HZDavy/plan-monitor?color=%232dd47a&label=Release&logo=github)](https://github.com/HZDavy/plan-monitor/releases) [![License](https://img.shields.io/github/license/HZDavy/plan-monitor?color=blue&label=License)](LICENSE) [![Downloads](https://img.shields.io/github/downloads/HZDavy/plan-monitor/latest/total?color=blueviolet&label=Downloads)](https://github.com/HZDavy/plan-monitor/releases/latest) [![Last-Release](https://img.shields.io/github/release-date/HZDavy/plan-monitor?color=green&label=Last-Release)](https://github.com/HZDavy/plan-monitor/releases/latest) ![Platform](https://img.shields.io/badge/Platform-Windows%2010%2F11%20x64-0078D6) ![Python](https://img.shields.io/badge/Python-3.8%2B-3776AB) ![PyQt](https://img.shields.io/badge/PyQt-5-41CD52) [![Website](https://img.shields.io/website?up_color=2dd47a&up_message=online&label=%E5%AE%98%E7%BD%91&url=https%3A%2F%2Fhzdavy.github.io%2Fplan-monitor%2F)](https://hzdavy.github.io/plan-monitor/)
+[![Release](https://img.shields.io/github/v/release/HZDavy/PlanMonitor?color=%232dd47a&label=Release&logo=github)](https://github.com/HZDavy/PlanMonitor/releases) [![License](https://img.shields.io/github/license/HZDavy/PlanMonitor?color=blue&label=License)](LICENSE) [![Downloads](https://img.shields.io/github/downloads/HZDavy/PlanMonitor/latest/total?color=blueviolet&label=Downloads)](https://github.com/HZDavy/PlanMonitor/releases/latest) [![Last-Release](https://img.shields.io/github/release-date/HZDavy/PlanMonitor?color=green&label=Last-Release)](https://github.com/HZDavy/PlanMonitor/releases/latest) ![Platform](https://img.shields.io/badge/Platform-Windows%2010%2F11%20x64-0078D6) ![Python](https://img.shields.io/badge/Python-3.8%2B-3776AB) ![PyQt](https://img.shields.io/badge/PyQt-5-41CD52) [![Website](https://img.shields.io/website?up_color=2dd47a&up_message=online&label=%E5%AE%98%E7%BD%91&url=https%3A%2F%2Fhzdavy.github.io%2FPlanMonitor%2F)](https://hzdavy.github.io/PlanMonitor/)
 
 > 火山方舟 **Coding Plan / Agent Plan** 用量浮窗 · 挂在副屏,看着余额用完
 
@@ -32,7 +32,7 @@
 
 ### 方式一:直接运行可执行文件
 
-从 [Releases](https://github.com/HZDavy/plan-monitor/releases) 下载最新 `PlanMonitor.exe`(Windows 10/11 x64),双击运行。
+从 [Releases](https://github.com/HZDavy/PlanMonitor/releases) 下载最新 `PlanMonitor.exe`(Windows 10/11 x64),双击运行。
 
 ### 方式二:Python 源码
 
