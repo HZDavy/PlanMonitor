@@ -1235,3 +1235,12 @@ body.lang-en .lang-switch .lang-off { color: var(--text); }
 .btn-primary:hover::before, .btn-ghost:hover::before {
   opacity: 1;
 }
+
+/* 双层嵌套：内层按钮不产生独立光晕，光效只跟随外层卡片 */
+.feature .btn-primary::before, .feature .btn-ghost::before,
+.step .btn-primary::before, .step .btn-ghost::before,
+.trust-card .btn-primary::before, .trust-card .btn-ghost::before,
+.dl-card .btn-primary::before, .dl-card .btn-ghost::before,
+.cta-card .btn-primary::before, .cta-card .btn-ghost::before {
+  opacity: 0 !important;
+}

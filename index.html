@@ -598,9 +598,12 @@
 
   // 跟随鼠标的光晕
   (function () {
-    var sel = '.feature, .step, .trust-card, .dl-card, .cta-card, .btn-primary, .btn-ghost';
+    var cards = '.feature, .step, .trust-card, .dl-card, .cta-card';
+    var btns = '.btn-primary, .btn-ghost';
     document.addEventListener('mousemove', function (e) {
-      var el = e.target && e.target.closest ? e.target.closest(sel) : null;
+      var t = e.target;
+      var card = t.closest ? t.closest(cards) : null;
+      var el = card || (t.closest ? t.closest(btns) : null);
       if (!el) return;
       var r = el.getBoundingClientRect();
       el.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100).toFixed(1) + '%');
