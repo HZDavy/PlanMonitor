@@ -9,7 +9,7 @@
 一个轻量、不打扰的桌面小工具,实时监控火山方舟 Coding Plan / Agent Plan 个人版的额度用量,以「近 5 小时 / 近一周 / 近一月」三个时间窗口展示已用量、配额、剩余量与下次重置倒计时。
 
 <p align="center">
-  <img src="screenshot.png" alt="Plan Monitor 界面截图" width="720">
+  <img src="screenshot.png" alt="Plan Monitor 界面截图" width="560">
 </p>
 
 ---
