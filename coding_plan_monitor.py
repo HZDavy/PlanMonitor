@@ -1898,8 +1898,34 @@ def _build_tray_pixmap(ok: bool = True) -> QPixmap:
 # 自定义圆角下拉菜单 (替代 QMenu, 解决 Windows QMenu border-radius 不生效)
 # ============================================================
 
+def _css_qcolor(s: str) -> "QColor":
+    """把 config 里 '#hex' / 'rgba(r,g,b,a)' 形式的颜色字符串解析成 QColor.
+    QColor 构造函数不认 rgba(...) 写法, 直接传会得到无效(黑色), 必须手动解析."""
+    from PyQt5.QtGui import QColor
+    if not s:
+        return QColor(255, 255, 255)
+    s = s.strip()
+    if s.lower().startswith("rgba(") and s.endswith(")"):
+        inner = s[5:-1]
+        parts = [p.strip() for p in inner.split(",")]
+        if len(parts) == 4:
+            try:
+                r = max(0, min(255, int(parts[0])))
+                g = max(0, min(255, int(parts[1])))
+                b = max(0, min(255, int(parts[2])))
+                a = float(parts[3])
+                a = max(0.0, min(1.0, a))
+                return QColor(r, g, b, int(a * 255))
+            except (ValueError, TypeError):
+                pass
+    c = QColor(s)
+    if not c.isValid():
+        return QColor(255, 255, 255)
+    return c
+
+
 class _MenuItem(QToolButton):
-    CHECK_W = 18  # ✓ 宽度
+    CHECK_W = 18  # ✓ 宽度 (含右侧间距占位)
 
     def __init__(self, text: str, checkable: bool = False, checked: bool = False, parent=None):
         super().__init__(parent)
@@ -1908,56 +1934,70 @@ class _MenuItem(QToolButton):
         self.setCheckable(checkable)
         self.setChecked(checked)
         self.setMinimumHeight(px(40))
+        # 横向撑满整行, 让悬停/点击热区覆盖整个菜单行而不是只有文字
+        self.setMinimumWidth(px(200))
+        sp = self.sizePolicy()
+        sp.setHorizontalPolicy(QSizePolicy.Expanding)
+        self.setSizePolicy(sp)
         self.setToolButtonStyle(Qt.ToolButtonTextOnly)
         self.setFocusPolicy(Qt.NoFocus)
-        # 留出 ✓ 标记的位置: 左侧 CHECK_W + 间距
-        self.setStyleSheet(f"""
-            QToolButton {{
-                background: transparent;
-                color: {T['fg']};
-                border: none;
-                border-radius: 8px;
-                padding: 0 {px(20)}px;
-                text-align: left;
-                font-family: '{FONT_FAMILY}';
-                font-size: {px(18)}px;
-                font-weight: 500;
-                letter-spacing: 0.5px;
-            }}
-            QToolButton:hover {{
-                background: rgba(155,138,255,0.14);
-            }}
-            QToolButton:checked {{
-                color: #9b8aff;
-            }}
-            QToolButton:checked:hover {{
-                background: rgba(155,138,255,0.10);
-            }}
-        """)
+
+    def _bg_path(self) -> "QPainterPath":
+        # 圆角背景, 覆盖整个按钮客户区
+        from PyQt5.QtCore import QRectF
+        from PyQt5.QtGui import QPainterPath
+        r = QRectF(self.rect()).adjusted(0.5, 0.5, -0.5, -0.5)
+        path = QPainterPath()
+        path.addRoundedRect(r, 8, 8)
+        return path
 
     def paintEvent(self, ev):
-        super().paintEvent(ev)
-        if not (self.isCheckable() and self.isChecked()):
-            return
-        # 在最左侧画一个紫色 ✓
-        from PyQt5.QtCore import QLineF
-        from PyQt5.QtGui import QPainter, QPainterPath, QColor, QPen
+        # 完全自绘: 背景(悬停/选中) + 左侧勾选标记 + 左对齐文本.
+        # QToolButton 的 QSS text-align 在不同 Qt/Windows 版本上不可靠, 会退化成居中,
+        # 因此这里不依赖样式表, 手动控制文本绘制以强制左对齐.
+        from PyQt5.QtCore import QRectF, QLineF, Qt
+        from PyQt5.QtGui import (QPainter, QColor, QPen, QFont, QFontMetrics)
+        checked = self.isCheckable() and self.isChecked()
+        hover = self.underMouse()
         p = QPainter(self)
         p.setRenderHint(QPainter.Antialiasing)
-        cx = px(12)
+        # 背景
+        bg = QColor(0, 0, 0, 0)
+        if checked:
+            bg = QColor(155, 138, 255, 36 if hover else 26)
+        elif hover:
+            bg = QColor(155, 138, 255, 36)
+        p.fillPath(self._bg_path(), bg)
+        # 字体 (与 QSS 保持一致, 用像素字号保证高 DPI 正确)
+        f = QFont(FONT_FAMILY)
+        f.setPixelSize(px(18))
+        f.setWeight(QFont.Medium)
+        f.setLetterSpacing(QFont.AbsoluteSpacing, 0.5)
+        p.setFont(f)
         cy = self.height() / 2
-        # 紫色小方块
-        path = QPainterPath()
-        path.addRoundedRect(int(cx - 5), int(cy - 5), 10, 10, 2, 2)
-        p.fillPath(path, QColor("#9b8aff"))
-        # 白色 ✓ (QLineF 在 QtCore, 接 float)
-        pen = QPen(QColor(255, 255, 255))
-        pen.setWidthF(1.6)
-        pen.setCapStyle(Qt.RoundCap)
-        pen.setJoinStyle(Qt.RoundJoin)
-        p.setPen(pen)
-        p.drawLine(QLineF(cx - 2.5, cy + 0.2, cx - 0.5, cy + 2.2))
-        p.drawLine(QLineF(cx - 0.5, cy + 2.2, cx + 3.0, cy - 2.0))
+        left = px(20)
+        # 选中时左侧画紫色小方块 + 白色 ✓, 并让文本让出空间
+        if checked:
+            cx = px(12)
+            small = __import__("PyQt5.QtGui", fromlist=["QPainterPath"]).QPainterPath()
+            small.addRoundedRect(int(cx - 5), int(cy - 5), 10, 10, 2, 2)
+            p.fillPath(small, QColor("#9b8aff"))
+            pen = QPen(QColor(255, 255, 255))
+            pen.setWidthF(1.6)
+            pen.setCapStyle(Qt.RoundCap)
+            pen.setJoinStyle(Qt.RoundJoin)
+            p.setPen(pen)
+            p.drawLine(QLineF(cx - 2.5, cy + 0.2, cx - 0.5, cy + 2.2))
+            p.drawLine(QLineF(cx - 0.5, cy + 2.2, cx + 3.0, cy - 2.0))
+            left += self.CHECK_W + px(6)
+        # 左对齐文本 (超出部分省略)
+        metrics = QFontMetrics(f)
+        avail_w = max(0, self.width() - left - px(20))
+        elided = metrics.elidedText(self.text(), Qt.ElideRight, avail_w)
+        p.setPen(QColor("#9b8aff") if checked else _css_qcolor(T['fg']))
+        p.drawText(QRectF(left, 0, avail_w, self.height()),
+                   Qt.AlignVCenter | Qt.AlignLeft, elided)
+        p.end()
 
 
 class PopupMenu(QWidget):
@@ -2108,6 +2148,7 @@ class FluidWindow(QWidget):
         self.last_status_ok = False
         self._drag_pos = None
         self._in_toggle = False
+        self._last_screen = None
 
         self.setWindowFlags(
             Qt.FramelessWindowHint
@@ -2340,6 +2381,7 @@ class FluidWindow(QWidget):
     def _body_mouse_release(self, ev):
         self._drag_pos = None
         self._save_geometry()
+        self._clamp_to_screen()
 
     # ---- 拖动 ----
     def mousePressEvent(self, ev: QMouseEvent):
@@ -2355,6 +2397,7 @@ class FluidWindow(QWidget):
     def mouseReleaseEvent(self, ev):
         self._drag_pos = None
         self._save_geometry()
+        self._clamp_to_screen()
 
     # ---- 入场动画 ----
     def _enter_animation(self):
@@ -2437,6 +2480,7 @@ class FluidWindow(QWidget):
         cur_w = self.width()
         cur_h = self.height()
         self.setGeometry(target.x() + 60, target.y() + 60, cur_w, cur_h)
+        self._clamp_to_screen()
         self.cfg["screen_index"] = nxt
         self._save_geometry()
         save_config(self.cfg)
@@ -2482,6 +2526,130 @@ class FluidWindow(QWidget):
         save_config(self.cfg)
         QApplication.quit()
 
+    # ---- 开机启动 ----
+    def _run_key(self):
+        return (r"Software\Microsoft\Windows\CurrentVersion\Run", "PlanMonitor")
+
+    def _startup_value(self) -> str:
+        if getattr(sys, "frozen", False):
+            return f'"{os.path.abspath(sys.executable)}"'
+        return f'"{os.path.abspath(sys.executable)}" "{os.path.abspath(__file__)}"'
+
+    def _is_startup_enabled(self) -> bool:
+        try:
+            import winreg
+            key_path, name = self._run_key()
+            with winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path, 0, winreg.KEY_READ) as k:
+                winreg.QueryValueEx(k, name)
+            return True
+        except Exception:
+            return False
+
+    def _toggle_startup(self):
+        import winreg
+        key_path, name = self._run_key()
+        try:
+            with winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path, 0, winreg.KEY_READ) as k:
+                winreg.QueryValueEx(k, name)
+            enabled = True
+        except Exception:
+            enabled = False
+        try:
+            with winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path, 0, winreg.KEY_SET_VALUE) as k:
+                if enabled:
+                    winreg.DeleteValue(k, name)
+                else:
+                    winreg.SetValueEx(k, name, 0, winreg.REG_SZ, self._startup_value())
+        except Exception as e:
+            self._logf(f"_toggle_startup failed: {e}")
+
+    # ---- 固定到任务栏 ----
+    def _pin_lnk_path(self) -> str:
+        root = os.environ.get("APPDATA", "")
+        folder = os.path.join(root, r"Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar")
+        return os.path.join(folder, "Plan Monitor.lnk")
+
+    def _is_pinned(self) -> bool:
+        return os.path.exists(self._pin_lnk_path())
+
+    @staticmethod
+    def _psq(s: str) -> str:
+        return "'" + str(s).replace("'", "''") + "'"
+
+    def _create_shortcut(self, lnk: str, target: str, wd: str) -> bool:
+        # 用系统自带 WScript.Shell 生成 .lnk, 避免额外 pywin32 依赖.
+        # 返回是否成功. 失败时把 PowerShell 的 stdout/stderr 记入日志, 不再静默吞掉.
+        import subprocess
+        script = (
+            "$ErrorActionPreference='Stop';"
+            "$s=(New-Object -ComObject WScript.Shell).CreateShortcut(" + self._psq(lnk) + ");"
+            "$s.TargetPath=" + self._psq(target) + ";"
+            "$s.WorkingDirectory=" + self._psq(wd) + ";"
+            "$s.IconLocation=" + self._psq(target + ",0") + ";"
+            "$s.Description='Plan Monitor';"
+            "$s.Save();"
+            "if (Test-Path " + self._psq(lnk) + ") { 'OK' } else { throw 'lnk not created' }"
+        )
+        r = subprocess.run(
+            ["powershell", "-NoProfile", "-NonInteractive", "-ExecutionPolicy",
+             "Bypass", "-Command", script],
+            check=False, capture_output=True, text=True,
+        )
+        if r.returncode != 0:
+            self._logf("_create_shortcut failed "
+                       f"rc={r.returncode} stdout={r.stdout.strip()!r} stderr={r.stderr.strip()!r}")
+            return False
+        return True
+
+    @staticmethod
+    def _notify_shell():
+        try:
+            ctypes.windll.shell32.SHChangeNotify(0x08000000, 0x1000, None, None)
+        except Exception:
+            pass
+
+    def _apply_tool(self, tool_on: bool):
+        """application Qt.Tool 窗口标志(仅改标志, 不 show 不 hide).
+
+        工具窗口(Qt.Tool)在任务栏不显示图标。tool_on=True -> 恢复工具窗口(无任务栏按钮);
+        tool_on=False -> 去掉 Tool, 让任务栏出现本程序图标, 便于用户右键固定。
+        保留 FramelessWindowHint 与置顶状态不变。"""
+        try:
+            flags = self.windowFlags()
+            base = Qt.FramelessWindowHint | Qt.Window
+            top = Qt.WindowStaysOnTopHint if self._is_top() else Qt.WindowType(0)
+            new_flags = base | top | (Qt.Tool if tool_on else Qt.WindowType(0))
+            if flags != new_flags:
+                self.setWindowFlags(new_flags)
+        except Exception as e:
+            self._logf(f"_apply_tool failed: {e}")
+
+    def _toggle_pin(self):
+        """固定到任务栏引导流程.
+
+        默认保持 Qt.Tool(不在任务栏显示)。仅在此处临时取消 Qt.Tool, 让窗口短暂出现在任务栏,
+        引导用户手动右键固定; 用户点"确定"后立即恢复 Qt.Tool(回到工具窗口模式)。
+        """
+        try:
+            self._apply_tool(False)
+            self.show()
+            self.raise_()
+            self.activateWindow()
+            InfoDialog(
+                "固定到任务栏",
+                "已临时把本程序放到任务栏。请手动固定：\n\n"
+                "① 在任务栏上右键本程序图标 → 选择“固定到任务栏”；\n"
+                "② 完成后在这个对话框点“确定”。\n\n"
+                "点“确定”后会恢复工具窗口模式(Qt.Tool)。",
+                self,
+            ).exec_()
+            self._apply_tool(True)
+            self.show()
+            self.raise_()
+            self.activateWindow()
+        except Exception as e:
+            self._logf(f"_toggle_pin failed: {e}")
+
     # ---- 托盘 ----
     def _build_menu(self) -> "PopupMenu":
         """构造与托盘菜单同款的 PopupMenu, 同时被汉堡按钮和系统托盘使用."""
@@ -2514,8 +2682,14 @@ class FluidWindow(QWidget):
 
         menu.add_separator()
 
+        add_and_hide("开机启动", self._toggle_startup,
+                     checkable=True, checked=self._is_startup_enabled())
+        add_and_hide("固定到任务栏", self._toggle_pin)
+
+        menu.add_separator()
+
         add_and_hide("打开用量订阅页", self.open_subscription)
-        add_and_hide("设置 Access Key...", self.open_settings)
+        add_and_hide("设置 Access Key", self.open_settings)
         add_and_hide("关于", self.show_about)
 
         menu.add_separator()
@@ -2531,12 +2705,9 @@ class FluidWindow(QWidget):
         self.tray = QSystemTrayIcon(self)
         self.tray.setIcon(QIcon(_build_tray_pixmap(ok=self.last_status_ok)))
         self.tray.setToolTip("Coding Plan Monitor")
-        # 托盘菜单用 QMenu (Windows 原生, setContextMenu 类型签名只接受 QMenu)
-        # 圆角只用在汉堡按钮的弹层 (用户能看到的那个)
-        try:
-            self.tray.setContextMenu(self._build_tray_menu())
-        except Exception:
-            self.tray.setContextMenu(self._build_menu())  # 兜底
+        # 不用 setContextMenu: 右键由 activated(Context) 弹自定义圆角菜单,
+        # 以避开 Windows 原生 QMenu border-radius 不生效的问题.
+        self.tray.setContextMenu(None)
         # 双击托盘图标 = 显隐切换
         self.tray.activated.connect(self._on_tray_activated)
         self.tray.show()
@@ -2556,7 +2727,7 @@ class FluidWindow(QWidget):
         act = QAction("移动到副屏", menu); act.triggered.connect(self.move_to_secondary); menu.addAction(act)
         menu.addSeparator()
         act = QAction("打开用量订阅页", menu); act.triggered.connect(self.open_subscription); menu.addAction(act)
-        act = QAction("设置 Access Key...", menu); act.triggered.connect(self.open_settings); menu.addAction(act)
+        act = QAction("设置 Access Key", menu); act.triggered.connect(self.open_settings); menu.addAction(act)
         act = QAction("关于", menu); act.triggered.connect(self.show_about); menu.addAction(act)
         menu.addSeparator()
         act = QAction("退出", menu); act.triggered.connect(self.quit_app); menu.addAction(act)
@@ -2600,7 +2771,10 @@ class FluidWindow(QWidget):
         menu.show_at(pos)
 
     def _on_tray_activated(self, reason):
-        if reason == QSystemTrayIcon.DoubleClick:
+        if reason == QSystemTrayIcon.Context:
+            menu = self._build_menu()
+            menu.show_at(QCursor.pos())
+        elif reason == QSystemTrayIcon.DoubleClick:
             self._show_window()
         elif reason == QSystemTrayIcon.Trigger:
             self._show_window()
@@ -2651,10 +2825,54 @@ class FluidWindow(QWidget):
         if bool(self.cfg.get("always_on_top", True)) != bool(self.windowFlags() & Qt.WindowStaysOnTopHint):
             self._set_top(bool(self.cfg.get("always_on_top", True)))
 
+    def _clamp_to_screen(self):
+        """把窗口钳制回当前屏幕的可用区域, 并安排一次整窗重绘.
+
+        跨屏(尤其不同 DPI)拖动后, 固定尺寸的窗口可能溢出小屏幕导致右侧/底部被裁剪,
+        或渲染只画出一部分(只显示汉堡图标)。此方法在拖动结束时收紧位置/尺寸, 并用
+        update() 在下一个绘制周期把整窗重画出来(异步可合并, 不产生闪烁)。"""
+        try:
+            center = self.frameGeometry().center()
+            scr = (QApplication.screenAt(center) or self.screen()
+                   or QApplication.primaryScreen())
+            avail = scr.availableGeometry()
+            g = self.geometry()
+            w = min(g.width(), avail.width())
+            h = min(g.height(), avail.height())
+            x, y = g.x(), g.y()
+            if x < avail.x():
+                x = avail.x()
+            if x + w > avail.x() + avail.width():
+                x = avail.x() + avail.width() - w
+            if y < avail.y():
+                y = avail.y()
+            if y + h > avail.y() + avail.height():
+                y = avail.y() + avail.height() - h
+            if (x, y, w, h) != (g.x(), g.y(), g.width(), g.height()):
+                self.setGeometry(x, y, w, h)
+            self.update()
+            self._save_geometry()
+        except Exception as e:
+            self._logf(f"_clamp_to_screen failed: {e}")
+
     def moveEvent(self, ev):
         super().moveEvent(ev)
-        # 副屏切换 / 多屏 DPI 切换后, OS 可能拉伸窗口, 立即复位
-        self._lock_height()
+        # 检测跨屏(不同 DPI): 一旦越过屏幕边界就整窗重绘, 避免残缺内容先显示出来再补全.
+        # 用 singleShot(0) 把同步重绘推迟到事件循环下一拍, 让重绘不夹在鼠标拖动事件栈里,
+        # 以尽量降低透明窗口同步重绘带来的闪烁; 又赶在下一帧合成前完成, 因此不会残留残缺帧.
+        try:
+            ctr = self.frameGeometry().center()
+            cur = (QApplication.screenAt(ctr) or self.screen()
+                   or QApplication.primaryScreen())
+            if cur is not self._last_screen:
+                self._last_screen = cur
+                QTimer.singleShot(0, self.repaint)
+        except Exception:
+            pass
+        # 拖动中不做尺寸收紧, 避免拖动时 resize 与跨屏 DPI 缩放互相干扰导致部分区域不重绘;
+        # 非拖动(程序化移动 / 副屏切换)才强制锁回固定高度
+        if self._drag_pos is None:
+            self._lock_height()
         self._save_geometry()
 
     def resizeEvent(self, ev):
