@@ -428,7 +428,7 @@ body.lang-en .lang-switch .lang-off { color: var(--text); }
   --mu: 1;
   width: 560px;
   max-width: 100%;
-  min-height: 720px;
+  min-height: 0;
   aspect-ratio: 560 / 720;
   font-size: calc(var(--mu) * 14px);
   margin: 0 auto;
