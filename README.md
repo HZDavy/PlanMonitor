@@ -109,4 +109,4 @@ pyinstaller --noconfirm --clean PlanMonitor.spec
 
 ## License
 
-本项目采用 [MIT](./LICENSE) 许可证开源。
+本项目采用 [GNU AGPL-3.0](./LICENSE) 许可证开源。
