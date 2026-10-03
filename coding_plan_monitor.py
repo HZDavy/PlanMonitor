@@ -665,8 +665,8 @@ class SettingsDialog(FluidDialog):
 # ============================================================
 
 class InfoDialog(FluidDialog):
-    def __init__(self, title: str, message: str, parent=None):
-        super().__init__(title, width=px(480), height=px(280), parent=parent)
+    def __init__(self, title: str, message: str, parent=None, buttons=None):
+        super().__init__(title, width=px(480), height=px(360), parent=parent)
         ff = FONT_FAMILY
         msg = QLabel(message)
         msg.setWordWrap(True)
@@ -679,6 +679,10 @@ class InfoDialog(FluidDialog):
         ok = self._make_pill_button("知道了", primary=True)
         ok.clicked.connect(self.accept)
         self.footer_layout.addStretch(1)
+        for text, cb in (buttons or []):
+            b = self._make_pill_button(text, primary=False)
+            b.clicked.connect(cb)
+            self.footer_layout.addWidget(b)
         self.footer_layout.addWidget(ok)
 
     def _make_pill_button(self, text: str, primary: bool):
@@ -2517,11 +2521,12 @@ class FluidWindow(QWidget):
     def show_about(self):
         InfoDialog(
             "关于",
-            "Coding Plan Monitor\n\n"
-            "火山方舟 Coding Plan / Agent Plan 用量浮窗\n"
+            "Plan Monitor\n\n"
+            "火山方舟 Plan / Agent Plan 用量浮窗\n"
             "数据每 30 秒自动刷新\n\n"
             "右键系统托盘图标可访问全部操作。",
             self,
+            buttons=[("访问官网", lambda: open_browser("https://hzdavy.github.io/PlanMonitor/"))],
         ).exec_()
 
     # ---- 退出 ----
