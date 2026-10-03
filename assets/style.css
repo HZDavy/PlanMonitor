@@ -428,7 +428,8 @@ body.lang-en .lang-switch .lang-off { color: var(--text); }
   --mu: 1;
   width: 560px;
   max-width: 100%;
-  aspect-ratio: 560 / 692;
+  min-height: 720px;
+  aspect-ratio: 560 / 720;
   font-size: calc(var(--mu) * 14px);
   margin: 0 auto;
   position: relative;
@@ -629,12 +630,12 @@ body.lang-en .lang-switch .lang-off { color: var(--text); }
 
 
 .dot {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   display: inline-block;
 }
-.d-green { background: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.d-green { background: #2ed47a; box-shadow: 0 0 6px rgba(46, 212, 122, 0.55); }
 
 /* ===== SECTION BASE ===== */
 .section {
