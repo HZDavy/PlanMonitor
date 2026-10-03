@@ -91,39 +91,16 @@ button { font-family: inherit; cursor: pointer; }
   width: 28px;
   height: 28px;
   border-radius: 8px;
-  background: var(--grad-1);
   position: relative;
   flex: none;
-  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+  overflow: hidden;
+  display: block;
 }
-.brand-mark::before {
-  content: "";
-  position: absolute;
-  inset: 5px;
-  border-radius: 4px;
-  background: var(--bg);
-}
-.brand-mark-inner {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 12px;
-  height: 12px;
-  border-radius: 3px;
-  background: var(--grad-1);
-  z-index: 2;
-}
-.brand-mark-inner::before {
-  content: "";
-  position: absolute;
-  left: 2px;
-  right: 2px;
-  bottom: 2px;
-  height: 2px;
-  background: #fff;
-  border-radius: 1px;
-  box-shadow: 0 -3px 0 #fff;
+.brand-mark img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 8px;
 }
 .brand-text {
   display: flex;
@@ -136,6 +113,7 @@ button { font-family: inherit; cursor: pointer; }
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  font-weight: 600;
 }
 .brand-text-2 {
   color: var(--text-3);
