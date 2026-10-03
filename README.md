@@ -4,7 +4,7 @@
 
 数据源:火山方舟 OpenAPI GetAFPUsage(Action=GetAFPUsage&Version=2024-01-01)。
 
-官网:https://hzdavy.github.io/coding-plan-monitor/
+官网:https://hzdavy.github.io/plan-monitor/
 
 ## 项目介绍
 
