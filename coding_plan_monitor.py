@@ -176,6 +176,11 @@ def save_config(cfg: dict):
             json.dump(cfg, f, ensure_ascii=False, indent=2)
     except Exception as e:
         print(f"[config] save failed: {e}")
+        try:
+            with open(os.path.join(APP_DIR, "_api.log"), "a", encoding="utf-8") as lf:
+                lf.write(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] [config] save failed: {e}\n")
+        except Exception:
+            pass
 
 
 # ============================================================
@@ -2818,9 +2823,28 @@ class FluidWindow(QWidget):
         self.resize(fixed_w, min_h)
         idx = self.cfg.get("screen_index", -1)
         screens = QApplication.screens()
+        # 目标屏幕: 优先保存的索引, 否则用主屏做钳制基准
+        target = None
         if 0 <= idx < len(screens):
-            geo = screens[idx].availableGeometry()
-            self.move(geo.x() + 60, geo.y() + 60)
+            target = screens[idx]
+        if target is None and screens:
+            target = screens[0]
+        saved = self.cfg.get("geometry") or {}
+        sx, sy = saved.get("x"), saved.get("y")
+        have_saved = isinstance(sx, (int, float)) and isinstance(sy, (int, float))
+        if target is not None:
+            g = target.availableGeometry()
+            if have_saved:
+                # 恢复到上次拖到的位置, 并把窗口钳制进目标屏幕可用区域
+                # (保存的屏幕可能已变化/小了, 防止窗口溢出到屏幕外)
+                sx_f = int(sx)
+                sy_f = int(sy)
+                max_x = g.x() + max(0, g.width() - fixed_w)
+                max_y = g.y() + max(0, g.height() - min_h)
+                self.move(max(g.x(), min(sx_f, max_x)), max(g.y(), min(sy_f, max_y)))
+            else:
+                # 无历史位置: 放到目标屏幕左上角 + 60,60 的默认位置
+                self.move(g.x() + 60, g.y() + 60)
         # 根据 cfg 应用置顶 (Qt 标准 flag)
         if bool(self.cfg.get("always_on_top", True)) != bool(self.windowFlags() & Qt.WindowStaysOnTopHint):
             self._set_top(bool(self.cfg.get("always_on_top", True)))
