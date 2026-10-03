@@ -1,102 +1,122 @@
-# Plan Monitor · 火山方舟 Coding Plan / Agent Plan 用量浮窗
+# Plan Monitor
 
-一个轻量、可固定在副屏的桌面小工具,用于监控火山方舟 Coding Plan / Agent Plan 个人版的 AFP 额度用量(近 5 小时、近一周、近一月三个窗口)。
+<p align="center">
+  <a href="https://github.com/HZDavy/plan-monitor/releases">
+    <img alt="Release" src="https://img.shields.io/github/v/release/HZDavy/plan-monitor?color=%232dd47a&label=Release&logo=github">
+  </a>
+  <a href="#license">
+    <img alt="License" src="https://img.shields.io/github/license/HZDavy/plan-monitor?color=blue&label=License">
+  </a>
+  <a href="https://github.com/HZDavy/plan-monitor/releases/latest">
+    <img alt="Downloads" src="https://img.shields.io/github/downloads/HZDavy/plan-monitor/latest/total?color=blueviolet&label=Downloads">
+  </a>
+  <a href="https://github.com/HZDavy/plan-monitor/releases/latest">
+    <img alt="Last-Release" src="https://img.shields.io/github/release-date/HZDavy/plan-monitor?color=green&label=Last-Release">
+  </a>
+  <img alt="Platform" src="https://img.shields.io/badge/Platform-Windows%2010%2F11%20x64-0078D6">
+  <img alt="Python" src="https://img.shields.io/badge/Python-3.8%2B-3776AB">
+  <img alt="PyQt" src="https://img.shields.io/badge/PyQt-5-41CD52">
+  <a href="https://hzdavy.github.io/plan-monitor/">
+    <img alt="Website" src="https://img.shields.io/website?up_color=2dd47a&up_message=online&label=%E5%AE%98%E7%BD%91&url=https%3A%2F%2Fhzdavy.github.io%2Fplan-monitor%2F">
+  </a>
+</p>
 
-数据源:火山方舟 OpenAPI GetAFPUsage(Action=GetAFPUsage&Version=2024-01-01)。
+> 火山方舟 **Coding Plan / Agent Plan** 用量浮窗 · 挂在副屏,看着余额用完
 
-官网:https://hzdavy.github.io/plan-monitor/
+一个轻量、不打扰的桌面小工具,实时监控火山方舟 Coding Plan / Agent Plan 个人版的额度用量,以「近 5 小时 / 近一周 / 近一月」三个时间窗口展示已用量、配额、剩余量与下次重置倒计时。
 
-## 项目介绍
+---
 
-本工具的设计目标是「挂在副屏、看着余额用完」:
+## 特性
 
-- 体积小巧:单文件约 41 MB,常驻内存约 8 MB,冷启动 < 1 秒
-- 不打扰:不弹窗、不抢焦点、可置顶、可一键移到副屏
-- 不联网:除官方 API 外无任何外发请求,AK/SK 只保存在本地 config.json
-- 可视化:深色 vivo OriginOS 设计语言,长时间挂在副屏不刺眼
+- **双 Plan 支持**:设置页一键切换 `Coding Plan` / `Agent Plan`,自动切换对应用量接口
+  - Coding → `GetCodingPlanUsage`
+  - Agent → `GetAFPUsage`(AFP 五小时 / 日 / 周 / 月额度)
+- **多窗口监控**:已用量、配额、剩余量、剩余百分比、距下次重置倒计时
+- **自动刷新**:默认每 30 秒拉取一次,也可手动刷新
+- **副屏友好**:可置顶、一键移动到副屏,下次启动自动恢复位置
+- **Deep 深色 UI**:长时间挂屏不刺眼,字体经字形适配
+- **静默运行**:不抢焦点、托盘常驻、关闭即最小化到托盘
+- **私密安全**:AK/SK 仅保存在本地 `config.json`,除官方 OpenAPI 外无任何外发请求
 
-## 功能特性
+---
 
-- 三窗口监控:近 5 小时 / 近一周 / 近一月,已用量、配额、剩余量、剩余百分比、距离下次重置的倒计时
-- 自动刷新:每 30 秒拉取一次;也可手动点右下角刷新按钮
-- 凭据本地保存:AK / SK 仅保存到 config.json(同目录),不上传任何服务器
-- 窗口置顶:支持「窗口置顶」和「移动到副屏」
-- 深色 UI:默认深色主题,长时间挂在副屏不刺眼
+## 快速开始
 
-## 截图示意
+### 方式一:直接运行可执行文件
 
-```
-+--------------------------------------+
-|  Coding Plan 用量      套餐 Large   |
-+--------------------------------------+
-|  近 5 小时   12.5 / 50               |
-|  剩余 37.5    重置 4h 47m             |
-+--------------------------------------+
-|  近一周     150 / 500                |
-|  剩余 350     重置 4d 7h              |
-+--------------------------------------+
-|  近一月     850 / 2000               |
-|  剩余 1150    重置 26d 7h             |
-+--------------------------------------+
-|  设置   刷新   置顶   -> 副屏        |
-+--------------------------------------+
-```
+从 [Releases](https://github.com/HZDavy/plan-monitor/releases) 下载最新 `PlanMonitor.exe`(Windows 10/11 x64),双击运行。
 
-## 安装
+### 方式二:Python 源码
 
-需要 Python 3.8+。
+环境要求:Python 3.8+
 
 ```bash
 pip install PyQt5 requests
-```
-
-## 启动
-
-```bash
 python coding_plan_monitor.py
 ```
 
-## 获取 Access Key
+---
 
-1. 打开 火山引擎访问控制 - Access Key 管理
-2. 创建一个 Access Key(推荐使用子账号 AK,并仅授予 ArkReadOnlyAccess 权限)
-3. 第一次启动后点击右下角「设置」,填入:
-   - Access Key ID
-   - Secret Access Key
-   - (可选)Region,默认 cn-beijing
-4. 点击「保存」,工具会自动请求一次并刷新界面
+## 配置 Access Key
 
-## 副屏固定使用
+1. 打开火山引擎控制台 **Access Key 管理**
+2. 创建一个 Access Key(推荐使用子账号 AK,仅授予 `ArkReadOnlyAccess` 权限)
+3. 首次启动后点击托盘/菜单 **设置**,填入:
+   - **Access Key ID**
+   - **Secret Access Key**
+   - **(可选)Region**,默认 `cn-beijing`
+4. 保存后自动请求一次并刷新界面
 
-1. 把窗口拖到副屏上合适位置
-2. 点击底部 「置顶」,窗口会保持在所有窗口最前
-3. 点击底部 「-> 副屏」,窗口会立即移动到第一个外接屏幕
-4. 下次启动时,窗口会恢复到上次位置和屏幕
+> 在应用内菜单可一键打开**用量订阅页**与 **Access Key 管理页**,免去手动记 URL。
 
-## 文件
+---
 
-- coding_plan_monitor.py — 主程序(单文件可直接分发)
-- config.json — 首次保存凭据后自动生成,存放 AK/SK(请勿上传到代码仓库)
+## 使用方法
 
-## 鉴权说明(HMAC-SHA256)
+1. 将窗口拖到副屏合适位置
+2. 点击底部 **置顶**,窗口保持在所有窗口最前
+3. 点击底部 **→ 副屏**,窗口立即移到第一个外接屏幕
+4. 设置页切换 **Plan** 后,用量查询与订阅页跳转会自动跟随
 
-火山方舟 OpenAPI 使用火山引擎标准的 HMAC-SHA256 V4 签名。本工具按官方规范生成:
+---
+
+## 数据与鉴权
+
+- 数据源:火山方舟 OpenAPI `GetAFPUsage`(`Action=GetAFPUsage&Version=2024-01-01`)
+- 鉴权:火山引擎 `HMAC-SHA256` V4 签名,按官方规范生成 `StringToSign`,实现见 `sign_request`
+- 本地代理日志便于排障(可关闭)
+
+---
+
+## 项目结构
 
 ```
-StringToSign = POST + LF + application/json + LF + <sha256(body)> + LF +
-               X-Date:<x-date> + LF +
-               host:ark.cn-beijing.volces.com + LF + LF +
-               ;host;x-content-sha256;x-date + LF +
-               <sha256(canonical_request)>
+coding_plan_monitor.py    # 主程序(单文件,可直接分发)
+config.json               # 首次保存凭据后自动生成(勿提交到仓库)
 ```
 
-详细实现见 Volcengine Signature V4。
+---
 
-## 安全提示
+## 常见问题
 
-- 不要把 config.json 上传到 Git
-- 推荐为监控单独创建一个 子账号 + AK,只授予读权限
-- 如果不小心泄露了 SK,立即在控制台「删除 Access Key」
+**窗口找不到 / 最小化后消失?** 程序默认驻留托盘(系统托盘图标),点击图标或使用系统托盘菜单恢复。
+
+**切到 Agent Plan 后无数据显示?** 请确认该账号已开通 Agent Plan 个人版,并在火山引擎控制台确认套餐额度可用。
+
+**想要开机自启 / 多屏位置记忆?** 窗口会自动记忆上次位置;如需开机自启,将 `PlanMonitor.exe` 快捷方式放入启动文件夹即可。
+
+---
+
+## 构建(可选)
+
+```bash
+pyinstaller --noconfirm --clean PlanMonitor.spec
+```
+
+产物位于 `dist/PlanMonitor.exe`。
+
+---
 
 ## License
 
