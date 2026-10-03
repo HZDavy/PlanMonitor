@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Coding Plan Monitor · Ship Faster with Local-First HUD</title>
-<meta name="description" content="Coding Plan Monitor - 火山方舟 Coding Plan 的本地浮窗，AK/SK 不离开本机。">
+<title>Plan Monitor · Ship Faster with Local-First HUD</title>
+<meta name="description" content="Plan Monitor - 火山方舟 Coding Plan / Agent Plan 的本地浮窗，AK/SK 不离开本机。">
 <meta name="theme-color" content="#0B0B0F">
-<meta property="og:title" content="Coding Plan Monitor">
-<meta property="og:description" content="Local desktop HUD for Volcengine Coding Plan. AK/SK never leaves your machine.">
+<meta property="og:title" content="Plan Monitor">
+<meta property="og:description" content="Local desktop HUD for Volcengine Coding Plan & Agent Plan. AK/SK never leaves your machine.">
 <meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
@@ -18,9 +18,9 @@
 <body>
 <nav class="nav" id="nav">
   <div class="container nav-inner">
-    <a class="brand" href="#top" aria-label="Coding Plan Monitor">
-      <span class="brand-mark"><span class="brand-mark-inner"></span></span>
-      <span class="brand-text"><span class="brand-text-1">Coding Plan</span><span class="brand-text-2">Monitor</span></span>
+    <a class="brand" href="#top" aria-label="Plan Monitor">
+      <span class="brand-mark"><img src="docs/logo.svg" alt="Plan Monitor"></span>
+      <span class="brand-text"><span class="brand-text-1">Plan</span><span class="brand-text-2">Monitor</span></span>
     </a>
     <ul class="nav-links" role="menubar">
       <li><a href="#features"><span class="zh">功能</span><span class="en">Features</span></a></li>
@@ -44,8 +44,8 @@
   <div class="container hero-inner">
     <div class="hero-eyebrow">
       <span class="hero-eyebrow-dot"></span>
-      <span class="zh">火山方舟 Coding Plan · 已连接</span>
-      <span class="en">Volcengine Coding Plan · Connected</span>
+      <span class="zh">火山方舟 · Coding Plan / Agent Plan 已连接</span>
+      <span class="en">Volcengine · Coding Plan / Agent Plan connected</span>
     </div>
     <h1 class="hero-title">
       <span class="zh hero-line">实时看到</span>
@@ -56,8 +56,8 @@
       <span class="en hero-line-small">on your desktop</span>
     </h1>
     <p class="hero-sub">
-      <span class="zh">把 Coding Plan 的 5H / Week / Month 三个窗口用量放在屏幕角落。轻量、托盘常驻、只出网一次 —— 写代码时永远知道还剩多少。</span>
-      <span class="en">A tiny always-on-top HUD for Volcengine Coding Plan. Three windows — 5H, Week, Month — pinned to the corner while you ship. One outbound call.</span>
+      <span class="zh">把 Coding Plan / Agent Plan 的 5H / Week / Month 三个窗口用量放在屏幕角落。轻量、托盘常驻、只出网一次 —— 写代码或跑 Agent 时永远知道还剩多少。</span>
+      <span class="en">A tiny always-on-top HUD for Coding Plan & Agent Plan. Three windows — 5H, Week, Month — pinned to the corner while you ship. One outbound call.</span>
     </p>
     <div class="hero-cta">
       <a class="btn-primary" href="#download">
@@ -166,8 +166,8 @@
         <span class="i"><span class="zh">桌面浮窗</span><span class="en">no going back</span></span>
       </h2>
       <p class="section-sub">
-        <span class="zh">Coding Plan Monitor 把 Coding Plan 的 5H / Week / Month 三个窗口数字直接钉在屏幕边缘。填一次 AK/SK，无需注册 —— 就像 IDE 自带的功能。</span>
-        <span class="en">Coding Plan Monitor pins the numbers that matter to the corner of your screen. Zero code, one-second sign-in — it should ship with every IDE.</span>
+        <span class="zh">Plan Monitor 把 Coding Plan / Agent Plan 的 5H / Week / Month 三个窗口数字直接钉在屏幕边缘。填一次 AK/SK，无需注册 —— 就像 IDE 自带的功能。</span>
+        <span class="en">Plan Monitor pins the numbers that matter to the corner of your screen. Zero code, one-second sign-in — it should ship with every IDE.</span>
       </p>
     </div>
 
@@ -188,8 +188,8 @@
         <div class="feature-body">
           <h3 class="feature-title"><span class="zh">完全本地自主 · 不依赖 IDE</span><span class="en">Fully autonomous · IDE-free</span></h3>
           <p class="feature-desc">
-            <span class="zh">独立 PyQt5 进程，不需要 VS Code / Cursor 也能跑。写文档、看 PDF、写代码时都能看见你的 Coding Plan 还剩多少。</span>
-            <span class="en">A standalone PyQt5 process — runs even without VS Code or Cursor. Watch the budget while you write docs, read PDFs, or code.</span>
+            <span class="zh">独立 PyQt5 进程，不需要 VS Code / Cursor 也能跑。写文档、看 PDF、写代码、跑 Agent 时都能看见 Coding Plan / Agent Plan 还剩多少。</span>
+            <span class="en">A standalone PyQt5 process — runs even without VS Code or Cursor. Watch the budget while you write docs, read PDFs, code, or run agents.</span>
           </p>
         </div>
       </article>
@@ -256,7 +256,7 @@
         <div class="step-num">01</div>
         <div class="step-body">
           <h3><span class="zh">解压即用</span><span class="en">Unzip &amp; open</span></h3>
-          <p><span class="zh">从 Releases 下载压缩包，双击 <code>CodingPlanMonitor.exe</code>。第一次启动会在同目录生成 <code>config.json</code>。</span><span class="en">Download the archive from Releases and double-click <code>CodingPlanMonitor.exe</code>. First run creates <code>config.json</code> next to it.</span></p>
+          <p><span class="zh">从 Releases 下载压缩包，双击 <code>PlanMonitor.exe</code>。第一次启动会在同目录生成 <code>config.json</code>。</span><span class="en">Download the archive from Releases and double-click <code>PlanMonitor.exe</code>. First run creates <code>config.json</code> next to it.</span></p>
         </div>
       </li>
       <li class="step">
@@ -293,8 +293,8 @@
         <span class="i"><span class="zh">从不离开本机</span><span class="en">never leaves your machine</span></span>
       </h2>
       <p class="section-sub">
-        <span class="zh">Coding Plan Monitor 坚持「本地优先、最小数据收集」。打开网络面板就能看到每一次出网请求 —— 除了官方 Coding Plan 接口，没有第二个目的地。</span>
-        <span class="en">Local-first. Minimal collection. Open DevTools and watch every outbound request — the only destination is the official Coding Plan endpoint.</span>
+        <span class="zh">Plan Monitor 坚持「本地优先、最小数据收集」。打开网络面板就能看到每一次出网请求 —— 除了官方 Coding Plan / Agent Plan 接口，没有第二个目的地。</span>
+        <span class="en">Local-first. Minimal collection. Open DevTools and watch every outbound request — the only destination is the official Coding Plan / Agent Plan endpoint.</span>
       </p>
     </div>
 
@@ -461,11 +461,11 @@
       <h2 class="cta-title">
         <span class="zh">免费开始</span>
         <span class="en">Get started</span>
-        <span class="i"><span class="zh">你的 Coding Plan</span><span class="en">with your Coding Plan</span></span>
+        <span class="i"><span class="zh">你的 Plan</span><span class="en">with your Plan</span></span>
       </h2>
       <p class="cta-sub">
-        <span class="zh">把 Coding Plan 的余额和用量放在屏幕角落，写代码时永远知道还剩多少。无需注册、无广告、无追踪。</span>
-        <span class="en">Pin the numbers that matter to the corner of your screen — know exactly how much Coding Plan you have while you ship. No signup, no ads, no tracking.</span>
+        <span class="zh">把 Coding Plan / Agent Plan 的余额和用量放在屏幕角落，写代码或跑 Agent 时永远知道还剩多少。无需注册、无广告、无追踪。</span>
+        <span class="en">Pin the numbers that matter to the corner of your screen — know exactly how much Coding Plan / Agent Plan you have while you ship. No signup, no ads, no tracking.</span>
       </p>
       <div class="cta-actions">
         <a class="btn-primary btn-lg" href="#download">
@@ -484,12 +484,12 @@
   <div class="container footer-inner">
     <div class="footer-brand">
       <a class="brand" href="#top">
-        <span class="brand-mark"><span class="brand-mark-inner"></span></span>
-        <span class="brand-text"><span class="brand-text-1">Coding Plan</span><span class="brand-text-2">Monitor</span></span>
+        <span class="brand-mark"><img src="docs/logo.svg" alt="Plan Monitor"></span>
+        <span class="brand-text"><span class="brand-text-1">Plan</span><span class="brand-text-2">Monitor</span></span>
       </a>
       <p class="footer-tag">
-        <span class="zh">火山方舟 Coding Plan 的本地浮窗 · 余额与用量，实时显示。</span>
-        <span class="en">A local HUD for Volcengine Coding Plan · balance &amp; usage in real time.</span>
+        <span class="zh">火山方舟 / Coding Plan / Agent Plan 都能用的本地浮窗 · 余额与用量，实时显示。</span>
+        <span class="en">A local HUD for Volcengine Coding Plan &amp; Agent Plan · balance &amp; usage in real time.</span>
       </p>
     </div>
     <div class="footer-cols">
@@ -516,7 +516,7 @@
   </div>
   <div class="container footer-bottom">
     <span class="footer-copy">© 2026 HZDavy · <span class="zh">开源 · MIT 协议</span><span class="en">Open source · MIT</span></span>
-    <span class="footer-build"><span class="zh">本站与 Coding Plan / 火山方舟 / ByteDance 无官方关联</span><span class="en">Not affiliated with Coding Plan / Volcengine / ByteDance</span></span>
+    <span class="footer-build"><span class="zh">本站与 Coding Plan / Agent Plan / 火山方舟 / ByteDance 无官方关联</span><span class="en">Not affiliated with Coding Plan / Agent Plan / Volcengine / ByteDance</span></span>
   </div>
 </footer>
 <script>
