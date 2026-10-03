@@ -1,12 +1,16 @@
-# Plan Monitor
+[![🌐 访问官网](https://img.shields.io/badge/%E2%9C%82%E8%AE%BF%E9%97%AE%E5%AE%98%E7%BD%91-%E7%82%B9%E5%87%BB%E6%89%93%E5%BC%80-2dd47a?style=for-the-badge&logo=internet-explorer&logoColor=white)](https://hzdavy.github.io/plan-monitor/)
 
-**🌐 官网**: [https://hzdavy.github.io/plan-monitor/](https://hzdavy.github.io/plan-monitor/)
+# Plan Monitor
 
 [![Release](https://img.shields.io/github/v/release/HZDavy/plan-monitor?color=%232dd47a&label=Release&logo=github)](https://github.com/HZDavy/plan-monitor/releases) [![License](https://img.shields.io/github/license/HZDavy/plan-monitor?color=blue&label=License)](LICENSE) [![Downloads](https://img.shields.io/github/downloads/HZDavy/plan-monitor/latest/total?color=blueviolet&label=Downloads)](https://github.com/HZDavy/plan-monitor/releases/latest) [![Last-Release](https://img.shields.io/github/release-date/HZDavy/plan-monitor?color=green&label=Last-Release)](https://github.com/HZDavy/plan-monitor/releases/latest) ![Platform](https://img.shields.io/badge/Platform-Windows%2010%2F11%20x64-0078D6) ![Python](https://img.shields.io/badge/Python-3.8%2B-3776AB) ![PyQt](https://img.shields.io/badge/PyQt-5-41CD52) [![Website](https://img.shields.io/website?up_color=2dd47a&up_message=online&label=%E5%AE%98%E7%BD%91&url=https%3A%2F%2Fhzdavy.github.io%2Fplan-monitor%2F)](https://hzdavy.github.io/plan-monitor/)
 
 > 火山方舟 **Coding Plan / Agent Plan** 用量浮窗 · 挂在副屏,看着余额用完
 
 一个轻量、不打扰的桌面小工具,实时监控火山方舟 Coding Plan / Agent Plan 个人版的额度用量,以「近 5 小时 / 近一周 / 近一月」三个时间窗口展示已用量、配额、剩余量与下次重置倒计时。
+
+<p align="center">
+  <img src="screenshot.png" alt="Plan Monitor 界面截图" width="720">
+</p>
 
 ---
 
@@ -103,4 +107,4 @@ pyinstaller --noconfirm --clean PlanMonitor.spec
 
 ## License
 
-MIT
+本项目采用 [MIT](./LICENSE) 许可证开源。
