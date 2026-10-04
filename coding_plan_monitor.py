@@ -2074,8 +2074,8 @@ class AccelOrb(QWidget):
         group_x = box.center().x() - total_w / 2.0
         # 数字垂直居中基线
         num_y = box.center().y() - (fm_num.ascent() + fm_num.descent()) / 2.0 + fm_num.ascent()
-        # 百分号在数字右下角: 基线比数字低一点
-        unit_y = num_y + (fm_num.ascent() - fm_unit.ascent()) + max(1, int(px(2) * s))
+        # 百分号与数字基线对齐(底部齐平), 字号小自然呈现右下角效果
+        unit_y = num_y
         # 数字渐变
         lg = QLinearGradient(0, box.top(), 0, box.bottom())
         lg.setColorAt(0.0, big_base.lighter(120))
