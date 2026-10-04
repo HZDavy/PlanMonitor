@@ -15,8 +15,8 @@ from datetime import datetime, timezone, timedelta
 
 import requests
 from PyQt5.QtCore import (
-    Qt, QTimer, QPropertyAnimation, QEasingCurve, QSize, QCoreApplication, QByteArray,
-    QRectF, QRect, QPointF, QPoint, QLineF, QUrl,
+    Qt, QTimer, QPropertyAnimation, QAbstractAnimation, QParallelAnimationGroup, QEasingCurve, QSize,
+    QCoreApplication, QByteArray, QRectF, QRect, QPointF, QPoint, QLineF, QUrl, QEvent, pyqtProperty,
 )
 from PyQt5.QtGui import (
     QFont, QFontDatabase, QColor, QPainter, QLinearGradient, QRadialGradient, QBrush,
@@ -24,10 +24,10 @@ from PyQt5.QtGui import (
 )
 from PyQt5.QtSvg import QSvgRenderer
 from PyQt5.QtWidgets import (
-    QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel,
+    QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLayout,
     QProgressBar, QFrame, QFormLayout,
     QComboBox,
-    QLineEdit, QGraphicsDropShadowEffect,
+    QLineEdit, QGraphicsDropShadowEffect, QGraphicsOpacityEffect,
     QToolButton, QSizePolicy, QSystemTrayIcon, QMenu, QAction
 )
 
@@ -1686,6 +1686,15 @@ class ArkLogoWidget(QLabel):
         self.setMaximumSize(size, size)
         self.setAlignment(Qt.AlignCenter)
         self.setStyleSheet("background: transparent; border: none; padding: 0; margin: 0;")
+        self.double_click_cb = None
+
+    def mouseDoubleClickEvent(self, ev):
+        cb = self.double_click_cb
+        if ev.button() == Qt.LeftButton and cb is not None:
+            cb()
+            ev.accept()
+            return
+        super().mouseDoubleClickEvent(ev)
 
 
 class FluidCard(QFrame):
@@ -1740,7 +1749,7 @@ class FluidCard(QFrame):
         big_row.setSpacing(px(4))
         big_row.setContentsMargins(0, 0, 0, 0)
         big_row.setAlignment(Qt.AlignLeft | Qt.AlignBottom)
-        self.big_lbl = QLabel("—")
+        self.big_lbl = QLabel("0")
         self.big_lbl.setStyleSheet(
             f"color: {T['fg']}; font-family: '{f}'; font-size: {px(52)}px; font-weight: 700; letter-spacing: {px(-2)}px; line-height: 100%;"
         )
@@ -1843,6 +1852,7 @@ class FluidCard(QFrame):
         self.unit_lbl.setText("%")
 
         if pct <= 0:
+            self.big_lbl.setText("0")
             self.reset_lbl.setText("—后重置")
             self.stop_pulse()
             self._apply_fill(T["fill"])
@@ -1875,6 +1885,208 @@ class FluidCard(QFrame):
 # ============================================================
 # 托盘图标 - 用 QPainter 自绘，不依赖 PIL
 # ============================================================
+
+class AccelOrb(QWidget):
+    """加速球: 双击 logo 收起为屏幕角落的悬浮小卡.
+    圆角矩形卡片 + 圆角进度条 + 中央大字百分比, 只显示近 5 小时用量百分比."""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._pct = 0.0
+        self._grow = 0.0
+        self.expand_cb = None
+        self._drag_off = None
+        self.setAttribute(Qt.WA_TranslucentBackground)
+        shadow = QGraphicsDropShadowEffect(self)
+        shadow.setBlurRadius(px(30))
+        shadow.setOffset(0, px(8))
+        shadow.setColor(QColor(0, 0, 0, 180))
+        self.setGraphicsEffect(shadow)
+
+    def _get_grow(self):
+        return self._grow
+
+    def _set_grow(self, v):
+        v = max(0.0, min(float(v), 1.35))
+        if v != self._grow:
+            self._grow = v
+            self.update()
+
+    grow_f = pyqtProperty(float, fget=_get_grow, fset=_set_grow)
+
+    def set_percent(self, pct):
+        pct = max(0.0, min(float(pct), 100.0))
+        if pct != self._pct:
+            self._pct = pct
+            self.update()
+
+    def _ring_color(self):
+        p = self._pct
+        if p <= 0:
+            return None
+        if p >= 95:
+            return QColor(T["err"])
+        if p >= 80:
+            return QColor(T["warn"])
+        return QColor(T["ok"])
+
+    def paintEvent(self, ev):
+        from PyQt5.QtGui import QFontMetrics
+        p = QPainter(self)
+        g = self._grow
+        if g <= 0.0001:
+            # 缩小阶段: 尚未开始生长, 完全不绘制
+            p.end()
+            return
+        c = self.rect().center()
+        p.translate(c.x(), c.y())
+        p.scale(g, g)
+        p.translate(-c.x(), -c.y())
+        p.setRenderHint(QPainter.Antialiasing)
+        w = self.width()
+        h = self.height()
+        # 四周留白给投影阴影(留白比之前大); 圆角矩形卡片
+        # 小屏幕下窗体会被 _clamp_to_screen 收紧、球变小. 若只看窗宽算字会漏掉高度收紧,
+        # 这里用 min(w,h) 相对设计尺寸(px(230)) 的比例 s 统一缩放留白/圆角/环宽/字号,
+        # 保证"球缩小文字同步缩小", 留白比例不再失衡.
+        design = float(px(230))
+        s = (min(w, h) / design) if design > 0 else 1.0
+        pad = max(8, int(px(46) * s))
+        box = QRectF(pad, pad, w - 2 * pad, h - 2 * pad)
+        if box.width() <= 20 or box.height() <= 20:
+            return
+        r_rad = max(6, int(px(24) * s))
+        cx, cy = box.center().x(), box.center().y()
+        ring_w = max(3, int(px(9) * s))
+        # 沿圆角矩形外圈轮廓、从顶部顺时针绘制 pct 比例的描边段(完全贴合外围边框)
+        def partial_rounded_outline(bound, rad, frac):
+            import math
+            seg = QPainterPath()
+            frac = max(0.0, min(1.0, frac))
+            if frac <= 0:
+                return seg
+            halfW = bound.width() / 2.0
+            L = max(0.0, bound.width() - 2 * rad)
+            H = max(0.0, bound.height() - 2 * rad)
+            quarter = 0.5 * math.pi * rad
+            TRc = QPointF(bound.left() + L + rad, bound.top() + rad)
+            BRc = QPointF(bound.right() - rad, bound.bottom() - rad)
+            BLc = QPointF(bound.left() + rad, bound.bottom() - rad)
+            TLc = QPointF(bound.left() + rad, bound.top() + rad)
+            TRr = QRectF(TRc.x() - rad, TRc.y() - rad, 2 * rad, 2 * rad)
+            BRr = QRectF(BRc.x() - rad, BRc.y() - rad, 2 * rad, 2 * rad)
+            BLr = QRectF(BLc.x() - rad, BLc.y() - rad, 2 * rad, 2 * rad)
+            TLr = QRectF(TLc.x() - rad, TLc.y() - rad, 2 * rad, 2 * rad)
+            topMid = QPointF(bound.left() + halfW, bound.top())
+            steps = [
+                ("line", L / 2.0, QPointF(bound.left() + L, bound.top())),
+                ("arc", quarter, (TRr, 90.0, -90.0)),
+                ("line", H, QPointF(bound.right(), bound.bottom() - rad)),
+                ("arc", quarter, (BRr, 0.0, -90.0)),
+                ("line", L, QPointF(bound.left() + rad, bound.bottom())),
+                ("arc", quarter, (BLr, -90.0, -90.0)),
+                ("line", H, QPointF(bound.left(), bound.top() + rad)),
+                ("arc", quarter, (TLr, 180.0, -90.0)),
+                ("line", L / 2.0, topMid),
+            ]
+            seg.moveTo(topMid)
+            rem = frac * (2 * L + 2 * H + 4 * quarter)
+            for kind, ln, geom in steps:
+                if rem <= 0:
+                    break
+                if kind == "line":
+                    cur = seg.currentPosition()
+                    if rem >= ln:
+                        seg.lineTo(geom)
+                        rem -= ln
+                    else:
+                        f = rem / ln if ln > 0 else 0
+                        seg.lineTo(QPointF(cur.x() + (geom.x() - cur.x()) * f,
+                                           cur.y() + (geom.y() - cur.y()) * f))
+                        rem = 0
+                else:
+                    rect, sa, sw = geom
+                    if rem >= ln:
+                        seg.arcTo(rect, sa, sw)
+                        rem -= ln
+                    else:
+                        seg.arcTo(rect, sa, sw * (rem / ln if ln > 0 else 0))
+                        rem = 0
+            return seg
+
+        # 圆角矩形玻璃底 (垂直线性渐变: 顶部微亮, 底部本色)
+        base = QLinearGradient(0, box.top(), 0, box.bottom())
+        base.setColorAt(0.0, QColor(36, 36, 46, 250))
+        base.setColorAt(1.0, QColor(11, 11, 15, 246))
+        p.setPen(QPen(QColor(255, 255, 255, 20), 1))
+        p.setBrush(base)
+        p.drawRoundedRect(box, r_rad, r_rad)
+        # 外圈进度环轨道 (圆角矩形描边)
+        p.setPen(QPen(QColor(255, 255, 255, 26), ring_w))
+        p.setBrush(Qt.NoBrush)
+        p.drawRoundedRect(box, r_rad, r_rad)
+        # 环进度: 沿外圈描边, 完全贴合圆角矩形边框
+        col = self._ring_color()
+        if col is not None and self._pct > 0:
+            seg = partial_rounded_outline(box, r_rad, self._pct / 100.0)
+            rg = QLinearGradient(box.topLeft(), box.bottomRight())
+            rg.setColorAt(0.0, col.lighter(112))
+            rg.setColorAt(1.0, col)
+            p.setPen(QPen(QBrush(rg), ring_w, Qt.SolidLine, Qt.RoundCap, Qt.PenJoinStyle.RoundJoin))
+            p.setBrush(Qt.NoBrush)
+            p.drawPath(seg)
+        # 中央大字百分比 (卡片内居中, 顶部微亮线性渐变, 字号随小球实际尺寸同步缩放)
+        if self._pct <= 0:
+            big_txt = "0%"
+            big_base = QColor(255, 255, 255, 150)
+        else:
+            big_txt = "{:.0f}%".format(round(self._pct))
+            big_base = col if col is not None else QColor(T["fg"])
+        f2 = QFont(FONT_FAMILY, max(12, int(px(28) * s)))
+        f2.setBold(True)
+        fm = QFontMetrics(f2)
+        tw = fm.horizontalAdvance(big_txt)
+        tx = box.center().x() - tw / 2.0
+        ty = box.center().y() - (fm.ascent() + fm.descent()) / 2.0 + fm.ascent()
+        lg = QLinearGradient(0, box.top(), 0, box.bottom())
+        lg.setColorAt(0.0, big_base.lighter(120))
+        lg.setColorAt(1.0, big_base)
+        tp = QPainterPath()
+        tp.addText(QPointF(tx, ty), f2, big_txt)
+        p.setPen(Qt.NoPen)
+        p.fillPath(tp, lg)
+        p.end()
+
+    def mouseDoubleClickEvent(self, ev):
+        if ev.button() == Qt.LeftButton and self.expand_cb is not None:
+            self.expand_cb()
+            ev.accept()
+            return
+        super().mouseDoubleClickEvent(ev)
+
+    def mousePressEvent(self, ev):
+        if ev.button() == Qt.LeftButton:
+            wnd = self.window()
+            self._drag_off = ev.globalPos() - wnd.frameGeometry().topLeft()
+            ev.accept()
+
+    def mouseMoveEvent(self, ev):
+        if self._drag_off is not None and ev.buttons() & Qt.LeftButton:
+            self.window().move(ev.globalPos() - self._drag_off)
+            ev.accept()
+
+    def mouseReleaseEvent(self, ev):
+        if self._drag_off is not None:
+            self._drag_off = None
+            wnd = self.window()
+            m = getattr(wnd, "_clamp_to_screen", None)
+            if m:
+                m()
+            s = getattr(wnd, "_save_geometry", None)
+            if s:
+                s()
+            ev.accept()
+
 
 def _build_tray_pixmap(ok: bool = True) -> QPixmap:
     """绘制 64x64 托盘图标: 品牌 m 图标作为底图 + 右上角状态点 (绿/红)."""
@@ -2170,6 +2382,27 @@ class FluidWindow(QWidget):
         self._build_ui()
         self._restore_geometry()
 
+        # 加速球: 双击 logo + 右侧品牌文字 收起为悬浮小球, 双击小球展开回完整面板
+        self.orb = AccelOrb(self)
+        self.orb.setVisible(False)
+        self.orb.expand_cb = self._animate_expand
+        # 双击品牌区 (logo + "火山方舟·已连接") 触发收起
+        self._brand_collapse_widgets = [self.brand_logo, self.brand_title_lbl,
+                                        self.brand_dot_lbl, self.brand_status_lbl]
+        for w in self._brand_collapse_widgets:
+            w.installEventFilter(self)
+        # 整窗双击热区: 在 body 子树(覆盖内容区/卡片/空白处, 排除加速球 orb)上装过滤器,
+        # 只在双击事件上生效并通过 eventFilter 里的汉堡按钮放行; 不再用 QApplication 级
+        # 全局过滤器(它曾拦截所有窗口事件导致双击退出、汉堡菜单失效).
+        self.body.installEventFilter(self)
+        self._collapsed = False
+        self._full_geo = None
+        self._orb_geo = None
+        self._anchor_offset = None
+        self._body_eff = None
+        self._animating_geom = False
+        self._switch_anim = None
+
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.refresh)
         self.timer.start(REFRESH_INTERVAL_MS)
@@ -2226,6 +2459,10 @@ class FluidWindow(QWidget):
         outer = QVBoxLayout(self)
         outer.setContentsMargins(px(28), px(28), px(28), px(52))
         outer.setSpacing(0)
+        # 放开顶层布局的尺寸约束: body(及其内容)的最小建议尺寸不强制窗口尺寸,
+        # 收起/展开的几何动画才不会被 body.show() 或内容最小高度瞬间撑开/拽偏,
+        # 使展开能像收起一样围绕固定中心线性缩放、中心不偏移
+        outer.setSizeConstraint(QLayout.SetNoConstraint)
 
         self.body = QFrame()
         self.body.setObjectName("body")
@@ -2407,6 +2644,21 @@ class FluidWindow(QWidget):
         self._drag_pos = None
         self._save_geometry()
         self._clamp_to_screen()
+
+    # ---- 整窗双击热区: 除汉堡按钮外, 任一点双击都切换 收起/展开 ----
+    def mouseDoubleClickEvent(self, ev: QMouseEvent):
+        if ev.button() == Qt.LeftButton:
+            btn = getattr(self, "hamburger_btn", None)
+            # 汉堡按钮区域不做切换, 保留其菜单功能; 其余全窗双击即收起
+            if btn is not None and btn.isVisible():
+                tl = btn.mapTo(self, QPoint(0, 0))
+                if QRect(tl, btn.size()).contains(ev.pos()):
+                    super().mouseDoubleClickEvent(ev)
+                    return
+            self._animate_collapse()
+            ev.accept()
+            return
+        super().mouseDoubleClickEvent(ev)
 
     # ---- 入场动画 ----
     def _enter_animation(self):
@@ -2807,6 +3059,8 @@ class FluidWindow(QWidget):
         self.cfg["geometry"] = {"x": g.x(), "y": g.y()}
 
     def _lock_height(self):
+        if getattr(self, "_collapsed", False):
+            return
         """强制把窗口高度锁回 min_h, 用于副屏 DPI 切换后 OS 拉伸时复位."""
         target_h = self.minimumHeight()
         target_w = max(self.width(), self.minimumWidth())
@@ -2884,6 +3138,246 @@ class FluidWindow(QWidget):
         except Exception as e:
             self._logf(f"_clamp_to_screen failed: {e}")
 
+    # ---- 加速球 收起 / 展开 (形态切换动画) ----
+    def eventFilter(self, obj, ev):
+        if ev.type() == QEvent.MouseButtonDblClick and ev.button() == Qt.LeftButton:
+            # 品牌区(向后兼容)
+            if getattr(self, "_brand_collapse_widgets", None) and obj in self._brand_collapse_widgets:
+                self._animate_collapse()
+                return True
+            # 整窗除汉堡按钮外都可双击收起; 只关本窗口后代, 内部控件(plan_combo 等)让位.
+            if not self.isAncestorOf(obj):
+                return super().eventFilter(obj, ev)
+            # 收起态下双击交给加速球自身展开; 已收起则不再重复收起
+            if getattr(self, "_collapsed", False) or obj is getattr(self, "orb", None):
+                return super().eventFilter(obj, ev)
+            btn = getattr(self, "hamburger_btn", None)
+            if btn is not None and btn.isVisible() and (obj is btn or btn.isAncestorOf(obj)):
+                return super().eventFilter(obj, ev)
+            self._animate_collapse()
+            return True
+        return super().eventFilter(obj, ev)
+
+    def _size_for_expanded(self):
+        card_h = px(200)
+        fixed_w = px(560)
+        min_h = 3 * card_h + 2 * px(12) + px(60) + px(12) + 2 * px(20) + 2 * px(28)
+        return fixed_w, min_h
+
+    def _stop_switch_anim(self):
+        a = getattr(self, "_switch_anim", None)
+        if a is not None:
+            try:
+                a.stop()
+            except Exception:
+                pass
+            self._switch_anim = None
+
+    def _restore_body_shadow(self):
+        """展开动画用 QGraphicsOpacityEffect 替换了 body 的投影, 完成后把它还原.
+        一个 QWidget 只能有一个 graphics effect, 必须显式把 QGraphicsDropShadowEffect 装回来."""
+        try:
+            self.body.setGraphicsEffect(None)
+            shadow = QGraphicsDropShadowEffect(self.body)
+            shadow.setBlurRadius(36)
+            shadow.setOffset(0, 8)
+            shadow.setColor(QColor(0, 0, 0, 110))
+            self.body.setGraphicsEffect(shadow)
+        except Exception:
+            pass
+        self._body_eff = None
+
+    @staticmethod
+    def _shrink_geometry(full_geo, avail, o):
+        """由窗口当前位置决定加速球落脚几何, 返回 (orb_geo, offset)。
+        offset = orb中心 - 窗口中心, 供展开时按当前 orb 位置可逆反推窗口位置,
+        保证「两个形态共用同一锚点」不跳变。窗口贴边时向对应边收缩, 否则居中收。"""
+        tol = px(2)
+        fx, fy, fw, fh = (full_geo.x(), full_geo.y(), full_geo.width(),
+                          full_geo.height())
+        cx, cy = full_geo.center().x(), full_geo.center().y()
+        scr_right = avail.x() + avail.width()
+        scr_bottom = avail.y() + avail.height()
+        scores = [
+            (abs((fx + fw) - scr_right), "right"),
+            (abs(fx - avail.x()), "left"),
+            (abs(fy - avail.y()), "top"),
+            (abs((fy + fh) - scr_bottom), "bottom"),
+        ]
+        scores.sort(key=lambda t: t[0])
+        dist, mode = scores[0]
+        ox, oy = float(cx), float(cy)
+        if dist <= tol:
+            if mode == "right":
+                ox = scr_right - o / 2.0
+            elif mode == "left":
+                ox = avail.x() + o / 2.0
+            elif mode == "top":
+                oy = avail.y() + o / 2.0
+            elif mode == "bottom":
+                oy = scr_bottom - o / 2.0
+        orb_geo = QRect(int(round(ox - o / 2.0)), int(round(oy - o / 2.0)), o, o)
+        edge = mode if dist <= tol else ""
+        return orb_geo, (ox - cx, oy - cy), edge
+
+    def _animate_collapse(self):
+        if getattr(self, "_collapsed", False):
+            return
+        self._collapsed = True
+        self._drag_pos = None
+        full = self.geometry()
+        self._full_geo = full
+        o = px(230)
+        avail = (QApplication.screenAt(full.center()) or self.screen()
+                 or QApplication.primaryScreen()).availableGeometry()
+        orb_geo, offset, edge = self._shrink_geometry(full, avail, o)
+        self._orb_geo = orb_geo
+        self._anchor_offset = offset
+        self._anchor_edge = edge
+        self.setMinimumSize(0, 0)
+        self.setMaximumSize(16777215, 16777215)
+        self._animating_geom = True
+        eff = QGraphicsOpacityEffect(self)
+        eff.setOpacity(1.0)
+        self.body.setGraphicsEffect(eff)
+        self._body_eff = eff
+        g1 = QParallelAnimationGroup(self)
+        ga = QPropertyAnimation(self, b"geometry", g1)
+        ga.setDuration(340)
+        ga.setStartValue(full)
+        ga.setEndValue(orb_geo)
+        ga.setEasingCurve(QEasingCurve.OutCubic)
+        g1.addAnimation(ga)
+        oa = QPropertyAnimation(eff, b"opacity", g1)
+        oa.setDuration(250)
+        oa.setStartValue(1.0)
+        oa.setEndValue(0.0)
+        oa.setEasingCurve(QEasingCurve.InQuad)
+        g1.addAnimation(oa)
+        self._stop_switch_anim()
+        self._switch_anim = g1
+        g1.finished.connect(self._after_collapse_stage1)
+        g1.start(QAbstractAnimation.DeleteWhenStopped)
+
+    def _after_collapse_stage1(self):
+        self._animating_geom = False
+        if not self._collapsed:
+            return
+        if self.body:
+            self.body.hide()
+            self.body.setGraphicsEffect(None)
+            self._body_eff = None
+        self.orb.setGeometry(self.rect())
+        self.orb._set_grow(0.0)
+        self.orb.show()
+        self.orb.raise_()
+        a = QPropertyAnimation(self.orb, b"grow_f", self)
+        a.setDuration(420)
+        a.setStartValue(0.0)
+        a.setEndValue(1.0)
+        a.setEasingCurve(QEasingCurve.OutBack)
+        self._switch_anim = a
+        a.finished.connect(self._on_switch_done)
+        a.start(QAbstractAnimation.DeleteWhenStopped)
+        self._save_geometry()
+        self._sync_top()
+
+    def _animate_expand(self):
+        if not getattr(self, "_collapsed", False):
+            return
+        self._collapsed = False
+        self._animating_geom = True
+        g = self.geometry()
+        cx, cy = g.center().x(), g.center().y()
+        fw, fh = self._size_for_expanded()
+        # 展开锚定 orb 当前实际位置, 而非收起时记录的旧锚点(_anchor_edge/_anchor_offset):
+        # 贴边收起后用户可能又拖动了 orb, 若还用旧锚点会错位. 这里按 orb 此刻是否贴边
+        # 来决定展开方向——贴哪条边就向哪条边展开, 否则以 orb 中心为锚心展开.
+        o = g.width()
+        av = (QApplication.screenAt(g.center()) or self.screen()
+              or QApplication.primaryScreen()).availableGeometry()
+        tol = px(2)
+        sr = av.x() + av.width()
+        sb = av.y() + av.height()
+        scores = [
+            (abs((cx + o / 2.0) - sr), "right"),
+            (abs((cx - o / 2.0) - av.x()), "left"),
+            (abs((cy - o / 2.0) - av.y()), "top"),
+            (abs((cy + o / 2.0) - sb), "bottom"),
+        ]
+        scores.sort(key=lambda t: t[0])
+        dist, edge = scores[0]
+        if edge and dist <= tol:
+            if edge == "right":
+                cx = sr - fw / 2.0
+            elif edge == "left":
+                cx = av.x() + fw / 2.0
+            elif edge == "top":
+                cy = av.y() + fh / 2.0
+            elif edge == "bottom":
+                cy = sb - fh / 2.0
+        full = QRect(int(round(cx - fw / 2.0)),
+                     int(round(cy - fh / 2.0)), fw, fh)
+        self._full_geo = full
+        a = QPropertyAnimation(self.orb, b"grow_f", self)
+        a.setDuration(420)
+        a.setStartValue(max(self.orb._grow, 0.0))
+        a.setEndValue(0.0)
+        a.setEasingCurve(QEasingCurve.InCubic)
+        self._switch_anim = a
+        a.finished.connect(self._after_expand_stage1)
+        a.start(QAbstractAnimation.DeleteWhenStopped)
+
+    def _after_expand_stage1(self):
+        if self._collapsed:
+            return
+        self.orb.hide()
+        # 展开动画的几何起点必须是 orb 当前实际位置(拖动后 = self.geometry()),
+        # 不能用收起时记录的旧 _orb_geo: 否则拖走 orb 后展开会先跳回旧位置再滑向目标, 明显错位.
+        orb_geo = self.geometry()
+        # 展开时放开尺寸锁; 顶层布局已被设为 SetNoConstraint, body.show() 不再把窗口
+        # 瞬拉到内容最小建议尺寸, 因此可以让 body 全程可见、随几何动画一起缩放淡入,
+        # 并保证展开围绕固定中心线性缩放、中心不偏移
+        self.setMinimumSize(0, 0)
+        self.setMaximumSize(16777215, 16777215)
+        if self.body:
+            self.body.show()
+            eff = QGraphicsOpacityEffect(self)
+            eff.setOpacity(0.0)
+            self.body.setGraphicsEffect(eff)
+            self._body_eff = eff
+        g2 = QParallelAnimationGroup(self)
+        ga = QPropertyAnimation(self, b"geometry", g2)
+        ga.setDuration(340)
+        ga.setStartValue(orb_geo)
+        ga.setEndValue(self._full_geo)
+        # OutBack 先快速放大再略微回弹, 给出明显非线性(弹簧)缩放感, 与收起侧球体的弹出节奏呼应
+        ga.setEasingCurve(QEasingCurve.OutBack)
+        g2.addAnimation(ga)
+        oa = QPropertyAnimation(eff, b"opacity", g2)
+        oa.setDuration(250)
+        oa.setStartValue(0.0)
+        oa.setEndValue(1.0)
+        oa.setEasingCurve(QEasingCurve.OutQuad)
+        g2.addAnimation(oa)
+        self._stop_switch_anim()
+        self._switch_anim = g2
+        g2.finished.connect(self._on_switch_done)
+        g2.start(QAbstractAnimation.DeleteWhenStopped)
+
+    def _on_switch_done(self):
+        self._animating_geom = False
+        self._save_geometry()
+        self._sync_top()
+        # 展开动画走完、窗口已到位后方可锁死完整尺寸, 避免在球体阶段提前 setMinimumSize
+        # 导致 Qt 瞬间把窗口拽到完整尺寸、几何动画原地失效, 缩放中心发生偏移
+        if not getattr(self, "_collapsed", False):
+            if self._full_geo is not None:
+                self.setMinimumSize(self._full_geo.width(), self._full_geo.height())
+                self.setMaximumSize(self._full_geo.width(), self._full_geo.height())
+            # 展开时的透明度渐隐把 body 投影替换掉了, 这里还原窗口模式阴影
+            self._restore_body_shadow()
+
     def moveEvent(self, ev):
         super().moveEvent(ev)
         # 检测跨屏(不同 DPI): 一旦越过屏幕边界就整窗重绘, 避免残缺内容先显示出来再补全.
@@ -2900,12 +3394,19 @@ class FluidWindow(QWidget):
             pass
         # 拖动中不做尺寸收紧, 避免拖动时 resize 与跨屏 DPI 缩放互相干扰导致部分区域不重绘;
         # 非拖动(程序化移动 / 副屏切换)才强制锁回固定高度
-        if self._drag_pos is None:
+        if self._drag_pos is None and not getattr(self, "_animating_geom", False):
             self._lock_height()
         self._save_geometry()
 
     def resizeEvent(self, ev):
         super().resizeEvent(ev)
+        if getattr(self, "_collapsed", False):
+            # 加速球模式下, 小球始终铺满窗口
+            self.orb.setGeometry(self.rect())
+            return
+        # 形态切换的几何动画驱动期间不强行收紧, 避免动画每一步都触发 resize 打架
+        if getattr(self, "_animating_geom", False):
+            return
         # 如果是 OS 拉伸 (高度 != min_h), 立即强制改回
         if ev is not None and self.minimumHeight() > 0:
             if self.height() != self.minimumHeight():
@@ -2975,6 +3476,7 @@ class FluidWindow(QWidget):
 
         usage = {item.get("Level"): item for item in (result.get("QuotaUsage") or []) if isinstance(item, dict)}
 
+        session_pct = 0.0
         for key, _ in WINDOW_WINDOWS:
             item = usage.get(key) or {}
             try:
@@ -2987,11 +3489,13 @@ class FluidWindow(QWidget):
             card = self.cards.get(key)
             if not card:
                 continue
-            if percent <= 0:
-                card.setVisible(False)
-            else:
-                card.setVisible(True)
-                card.update_data(percent, reset)
+            if key == "session":
+                session_pct = percent
+            # 没读出来(0)也保持卡片可见, 显示默认 "—" 且进度 0%, 不隐藏下面卡片
+            card.setVisible(True)
+            card.update_data(percent, reset)
+
+        self.orb.set_percent(session_pct)
 
 
 
