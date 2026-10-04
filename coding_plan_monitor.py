@@ -2035,26 +2035,60 @@ class AccelOrb(QWidget):
             p.setPen(QPen(QBrush(rg), ring_w, Qt.SolidLine, Qt.RoundCap, Qt.PenJoinStyle.RoundJoin))
             p.setBrush(Qt.NoBrush)
             p.drawPath(seg)
-        # 中央大字百分比 (卡片内居中, 顶部微亮线性渐变, 字号随小球实际尺寸同步缩放)
+        # 中央百分比: 数字大字 + 百分号小号(右下角), 整组水平居中
         if self._pct <= 0:
-            big_txt = "0%"
+            num_txt = "0"
             big_base = QColor(255, 255, 255, 150)
         else:
-            big_txt = "{:.0f}%".format(round(self._pct))
+            num_txt = "{:.0f}".format(round(self._pct))
             big_base = col if col is not None else QColor(T["fg"])
-        f2 = QFont(FONT_FAMILY, max(12, int(px(28) * s)))
-        f2.setBold(True)
-        fm = QFontMetrics(f2)
-        tw = fm.horizontalAdvance(big_txt)
-        tx = box.center().x() - tw / 2.0
-        ty = box.center().y() - (fm.ascent() + fm.descent()) / 2.0 + fm.ascent()
+        unit_txt = "%"
+        # 可用宽度: box 已扣阴影留白, 再扣环宽 + 文字左右白边
+        inner_pad = max(2, int(px(4) * s))
+        avail_w = box.width() - 2 * ring_w - 2 * inner_pad
+        gap = max(1, int(px(2) * s))
+        # 数字字号按小球尺寸缩放, 若(数字+间距+百分号)总宽超过可用宽度则逐步缩小数字(最小 8px)
+        pt = max(12, int(px(28) * s))
+        while pt > 8:
+            f_num = QFont(FONT_FAMILY, pt)
+            f_num.setBold(True)
+            fm_num = QFontMetrics(f_num)
+            unit_pt = max(6, int(pt * 0.42))
+            f_unit = QFont(FONT_FAMILY, unit_pt)
+            fm_unit = QFontMetrics(f_unit)
+            total_w = fm_num.horizontalAdvance(num_txt) + gap + fm_unit.horizontalAdvance(unit_txt)
+            if total_w <= avail_w:
+                break
+            pt -= 1
+        # 最终字体
+        f_num = QFont(FONT_FAMILY, pt)
+        f_num.setBold(True)
+        fm_num = QFontMetrics(f_num)
+        unit_pt = max(6, int(pt * 0.42))
+        f_unit = QFont(FONT_FAMILY, unit_pt)
+        fm_unit = QFontMetrics(f_unit)
+        num_w = fm_num.horizontalAdvance(num_txt)
+        unit_w = fm_unit.horizontalAdvance(unit_txt)
+        total_w = num_w + gap + unit_w
+        # 整组水平居中
+        group_x = box.center().x() - total_w / 2.0
+        # 数字垂直居中基线
+        num_y = box.center().y() - (fm_num.ascent() + fm_num.descent()) / 2.0 + fm_num.ascent()
+        # 百分号在数字右下角: 基线比数字低一点
+        unit_y = num_y + (fm_num.ascent() - fm_unit.ascent()) + max(1, int(px(2) * s))
+        # 数字渐变
         lg = QLinearGradient(0, box.top(), 0, box.bottom())
         lg.setColorAt(0.0, big_base.lighter(120))
         lg.setColorAt(1.0, big_base)
-        tp = QPainterPath()
-        tp.addText(QPointF(tx, ty), f2, big_txt)
+        tp_num = QPainterPath()
+        tp_num.addText(QPointF(group_x, num_y), f_num, num_txt)
         p.setPen(Qt.NoPen)
-        p.fillPath(tp, lg)
+        p.fillPath(tp_num, lg)
+        # 百分号: 同色系稍亮, 常规字重
+        unit_color = big_base.lighter(130)
+        tp_unit = QPainterPath()
+        tp_unit.addText(QPointF(group_x + num_w + gap, unit_y), f_unit, unit_txt)
+        p.fillPath(tp_unit, QBrush(unit_color))
         p.end()
 
     def mouseDoubleClickEvent(self, ev):
