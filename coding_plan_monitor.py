@@ -665,8 +665,10 @@ class SettingsDialog(FluidDialog):
 # ============================================================
 
 class InfoDialog(FluidDialog):
-    def __init__(self, title: str, message: str, parent=None, buttons=None):
-        super().__init__(title, width=px(480), height=px(360), parent=parent)
+    def __init__(self, title: str, message: str, parent=None, buttons=None, links=None):
+        # 有链接行时增高, 避免正文最后一行被裁剪
+        dlg_height = px(360) + (px(56) if links else 0)
+        super().__init__(title, width=px(480), height=dlg_height, parent=parent)
         ff = FONT_FAMILY
         msg = QLabel(message)
         msg.setWordWrap(True)
@@ -674,6 +676,29 @@ class InfoDialog(FluidDialog):
             f"color: {T['fg']}; font-family: '{ff}'; font-size: {px(18)}px; font-weight: 500; line-height: 1.5;"
         )
         self.content_layout.addWidget(msg)
+
+        if links:
+            # 可点击富文本链接: 形如 [(显示文本, 目标网址), ...], 点击用系统浏览器打开
+            link_lbl = QLabel("   ·   ".join(
+                f"<a href='{i}' style='color:#aea4ff;text-decoration:none;'>{text}</a>"
+                for i, (text, _) in enumerate(links)
+            ))
+            link_lbl.setTextFormat(Qt.RichText)
+            link_lbl.setOpenExternalLinks(False)
+            # 只允许鼠标/键盘访问链接, 不设置整行手型光标, 手型仅出现在链接锚点上方
+            link_lbl.setTextInteractionFlags(
+                Qt.LinksAccessibleByMouse | Qt.LinksAccessibleByKeyboard
+            )
+
+            def _on(href: str):
+                open_browser(links[int(href)][1])
+
+            link_lbl.linkActivated.connect(_on)
+            link_lbl.setStyleSheet(
+                f"font-family: '{ff}'; font-size: {px(17)}px; font-weight: 600;"
+            )
+            self.content_layout.addWidget(link_lbl)
+
         self.content_layout.addStretch(1)
 
         ok = self._make_pill_button("知道了", primary=True)
@@ -2813,6 +2838,10 @@ class FluidWindow(QWidget):
             "右键系统托盘图标可访问全部操作。",
             self,
             buttons=[("访问官网", lambda: open_browser("https://hzdavy.github.io/PlanMonitor/"))],
+            links=[
+                ("v1.1.0", "https://github.com/HZDavy/PlanMonitor/releases"),
+                ("HZDavy", "https://hzdavy.github.io"),
+            ],
         ).exec_()
 
     # ---- 退出 ----
