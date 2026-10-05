@@ -20,7 +20,7 @@ from PyQt5.QtCore import (
 )
 from PyQt5.QtGui import (
     QFont, QFontDatabase, QColor, QPainter, QLinearGradient, QRadialGradient, QBrush,
-    QPen, QCursor, QPainterPath, QMouseEvent, QIcon, QPixmap, QDesktopServices,
+    QPen, QCursor, QPainterPath, QMouseEvent, QContextMenuEvent, QIcon, QPixmap, QDesktopServices,
 )
 from PyQt5.QtSvg import QSvgRenderer
 from PyQt5.QtWidgets import (
@@ -287,7 +287,7 @@ T = {
     "warn":        "#ffd166",
     "err":         "#ff5e5e",
     "ok":          "#7ce8a8",
-    "accent":      "#9b8aff",
+    "accent":      "#e8eaf2",
 }
 
 GLOBAL_QSS = """
@@ -377,11 +377,11 @@ class FluidDialog(QWidget):
         body.setSpacing(16)
         outer.addWidget(self.body)
 
-        # 紫色阴影
+        # 阴影
         shadow = QGraphicsDropShadowEffect(self)
         shadow.setBlurRadius(36)
         shadow.setOffset(0, 6)
-        shadow.setColor(QColor(155, 138, 255, 130))
+        shadow.setColor(QColor(8, 8, 12, 130))
         self.body.setGraphicsEffect(shadow)
 
         # 顶栏
@@ -627,9 +627,9 @@ class SettingsDialog(FluidDialog):
         b.setMinimumHeight(px(48))
         ff = FONT_FAMILY
         if primary:
-            bg = T["accent"]
+            bg = "#ffffff"
             fg = "#0a0a0c"
-            hover_bg = "#aea4ff"
+            hover_bg = "#e8eaf2"
         else:
             bg = T["card"]
             fg = T["fg2"]
@@ -680,7 +680,7 @@ class InfoDialog(FluidDialog):
         if links:
             # 可点击富文本链接: 形如 [(显示文本, 目标网址), ...], 点击用系统浏览器打开
             link_lbl = QLabel("   ·   ".join(
-                f"<a href='{i}' style='color:#aea4ff;text-decoration:none;'>{text}</a>"
+                f"<a href='{i}' style='color:#7ce8a8;text-decoration:none;'>{text}</a>"
                 for i, (text, _) in enumerate(links)
             ))
             link_lbl.setTextFormat(Qt.RichText)
@@ -717,7 +717,7 @@ class InfoDialog(FluidDialog):
         b.setMinimumHeight(px(48))
         ff = FONT_FAMILY
         if primary:
-            bg, fg, hover_bg = T["accent"], "#0a0a0c", "#aea4ff"
+            bg, fg, hover_bg = "#ffffff", "#0a0a0c", "#e8eaf2"
         else:
             bg, fg, hover_bg = T["card"], T["fg2"], T["card_hover"]
         b.setStyleSheet(f"""
@@ -1982,7 +1982,7 @@ class AccelOrb(QWidget):
             return
         r_rad = max(6, int(px(24) * s))
         cx, cy = box.center().x(), box.center().y()
-        ring_w = max(3, int(px(9) * s))
+        ring_w = max(3, int(px(6) * s))
         # 沿圆角矩形外圈轮廓、从顶部顺时针绘制 pct 比例的描边段(完全贴合外围边框)
         def partial_rounded_outline(bound, rad, frac):
             import math
@@ -2046,14 +2046,18 @@ class AccelOrb(QWidget):
         p.setPen(QPen(QColor(255, 255, 255, 20), 1))
         p.setBrush(base)
         p.drawRoundedRect(box, r_rad, r_rad)
-        # 外圈进度环轨道 (圆角矩形描边)
-        p.setPen(QPen(QColor(255, 255, 255, 26), ring_w))
+        # 环与进度条都画在玻璃底内侧 (内缩半环宽), 最外缘贴齐 box 边界, 外部阴影区保持干净
+        halo = ring_w / 2.0
+        ring_box = box.adjusted(halo, halo, -halo, -halo)
+        ring_rad = max(2.0, r_rad - halo)
+        # 外围进度环轨道 (圆角矩形描边) - 带灰的半透明色环, 白底下也清晰可见
+        p.setPen(QPen(QColor(158, 160, 172, 90), ring_w))
         p.setBrush(Qt.NoBrush)
-        p.drawRoundedRect(box, r_rad, r_rad)
-        # 环进度: 沿外圈描边, 完全贴合圆角矩形边框
+        p.drawRoundedRect(ring_box, ring_rad, ring_rad)
+        # 环进度: 沿内圈描边, 与灰色轨道等宽、不超出边界
         col = self._ring_color()
         if col is not None and self._pct > 0:
-            seg = partial_rounded_outline(box, r_rad, self._pct / 100.0)
+            seg = partial_rounded_outline(ring_box, ring_rad, self._pct / 100.0)
             rg = QLinearGradient(box.topLeft(), box.bottomRight())
             rg.setColorAt(0.0, col.lighter(112))
             rg.setColorAt(1.0, col)
@@ -2244,9 +2248,9 @@ class _MenuItem(QToolButton):
         # 背景
         bg = QColor(0, 0, 0, 0)
         if checked:
-            bg = QColor(155, 138, 255, 36 if hover else 26)
+            bg = QColor(255, 255, 255, 30 if hover else 22)
         elif hover:
-            bg = QColor(155, 138, 255, 36)
+            bg = QColor(255, 255, 255, 30)
         p.fillPath(self._bg_path(), bg)
         # 字体 (与 QSS 保持一致, 用像素字号保证高 DPI 正确)
         f = QFont(FONT_FAMILY)
@@ -2256,25 +2260,25 @@ class _MenuItem(QToolButton):
         p.setFont(f)
         cy = self.height() / 2
         left = px(20)
-        # 选中时左侧画紫色小方块 + 白色 ✓, 并让文本让出空间
+        # 选中时左侧画白色小方块 + 深色 ✓, 并让文本让出空间
         if checked:
             cx = px(12)
             small = __import__("PyQt5.QtGui", fromlist=["QPainterPath"]).QPainterPath()
             small.addRoundedRect(int(cx - 5), int(cy - 5), 10, 10, 2, 2)
-            p.fillPath(small, QColor("#9b8aff"))
-            pen = QPen(QColor(255, 255, 255))
+            p.fillPath(small, QColor("#e8eaf2"))
+            pen = QPen(QColor(10, 10, 12))
             pen.setWidthF(1.6)
             pen.setCapStyle(Qt.RoundCap)
             pen.setJoinStyle(Qt.RoundJoin)
             p.setPen(pen)
-            p.drawLine(QLineF(cx - 2.5, cy + 0.2, cx - 0.5, cy + 2.2))
-            p.drawLine(QLineF(cx - 0.5, cy + 2.2, cx + 3.0, cy - 2.0))
+            p.drawLine(QLineF(cx - 2.5, cy + 0.2, cx - 0.75, cy + 2.4))
+            p.drawLine(QLineF(cx - 0.75, cy + 2.4, cx + 3.0, cy - 2.4))
             left += self.CHECK_W + px(6)
         # 左对齐文本 (超出部分省略)
         metrics = QFontMetrics(f)
         avail_w = max(0, self.width() - left - px(20))
         elided = metrics.elidedText(self.text(), Qt.ElideRight, avail_w)
-        p.setPen(QColor("#9b8aff") if checked else _css_qcolor(T['fg']))
+        p.setPen(QColor("#e8eaf2") if checked else _css_qcolor(T['fg']))
         p.drawText(QRectF(left, 0, avail_w, self.height()),
                    Qt.AlignVCenter | Qt.AlignLeft, elided)
         p.end()
@@ -2603,7 +2607,7 @@ class FluidWindow(QWidget):
                 border: 1px solid rgba(255,255,255,0.10);
             }}
             QToolButton:pressed {{
-                background: rgba(155,138,255,0.18);
+                background: rgba(255,255,255,0.18);
             }}
         """)
         self.hamburger_btn.clicked.connect(self._on_hamburger_clicked)
@@ -2646,7 +2650,7 @@ class FluidWindow(QWidget):
         p.setClipPath(clip)
         p.fillRect(0, 0, w, h, QColor(T["bg"]))
 
-        # 2) 左上紫色 radial
+        # 2) 左上淡紫 radial
         glow = QRadialGradient(30, 30, 220)
         glow.setColorAt(0.0, QColor(155, 138, 255, 45))
         glow.setColorAt(0.5, QColor(155, 138, 255, 14))
@@ -2718,6 +2722,12 @@ class FluidWindow(QWidget):
             ev.accept()
             return
         super().mouseDoubleClickEvent(ev)
+
+    # ---- 右键热区: 窗口模式与加速球模式, 右键直接弹出菜单 ----
+    def contextMenuEvent(self, ev: QContextMenuEvent):
+        menu = self._build_menu()
+        menu.show_at(ev.globalPos())
+        ev.accept()
 
     # ---- 入场动画 ----
     def _enter_animation(self):
@@ -3073,11 +3083,11 @@ class FluidWindow(QWidget):
                 margin: 2px 4px;
             }}
             QMenu::item:selected {{
-                background: rgba(155,138,255,0.18);
+                background: rgba(255,255,255,0.16);
                 color: {T['fg']};
             }}
             QMenu::item:checked {{
-                color: #9b8aff;
+                color: #e8eaf2;
             }}
             QMenu::separator {{
                 height: 1px;
