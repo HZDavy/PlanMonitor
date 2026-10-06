@@ -5,6 +5,7 @@
 [![Release](https://img.shields.io/github/v/release/HZDavy/PlanMonitor?color=%232dd47a&label=Release&logo=github)](https://github.com/HZDavy/PlanMonitor/releases) [![License](https://img.shields.io/github/license/HZDavy/PlanMonitor?color=blue&label=License)](LICENSE) [![Downloads](https://img.shields.io/github/downloads/HZDavy/PlanMonitor/latest/total?color=blueviolet&label=Downloads)](https://github.com/HZDavy/PlanMonitor/releases/latest) [![Last-Release](https://img.shields.io/github/release-date/HZDavy/PlanMonitor?color=green&label=Last-Release)](https://github.com/HZDavy/PlanMonitor/releases/latest) ![Platform](https://img.shields.io/badge/Platform-Windows%2010%2F11%20x64-0078D6) ![Python](https://img.shields.io/badge/Python-3.8%2B-3776AB) ![PyQt](https://img.shields.io/badge/PyQt-5-41CD52) [![Website](https://img.shields.io/website?up_color=2dd47a&up_message=online&label=%E5%AE%98%E7%BD%91&url=https%3A%2F%2Fhzdavy.github.io%2FPlanMonitor%2F)](https://hzdavy.github.io/PlanMonitor/)
 
 > 暂时只支持火山方舟 Coding 和 Agent Plan 其他供应商会安计划顺序逐步支持
+
 一个轻量、不打扰的桌面小工具,实时监控火山方舟 Coding Plan / Agent Plan 个人版的额度用量,以「近 5 小时 / 近一周 / 近一月」三个时间窗口展示已用量、配额、剩余量与下次重置倒计时。
 
 <p align="center">
