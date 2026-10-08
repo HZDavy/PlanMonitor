@@ -26,7 +26,7 @@ from PyQt5.QtSvg import QSvgRenderer
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLayout,
     QProgressBar, QFrame, QFormLayout,
-    QComboBox,
+    QComboBox, QInputDialog, QTextEdit, QSpinBox,
     QLineEdit, QGraphicsDropShadowEffect, QGraphicsOpacityEffect,
     QToolButton, QSizePolicy, QSystemTrayIcon, QMenu, QAction
 )
@@ -156,6 +156,34 @@ DEFAULT_CONFIG = {
     "plan": "coding",
     "always_on_top": True, "compact": False,
     "geometry": {}, "screen_index": -1,
+    "token": {
+        "model": "doubao-1.5-pro-32k",
+        "active": "默认项目",
+        "projects": {"默认项目": {"prompt": 0, "completion": 0}},
+        "prices": [
+            {"model": "doubao-1.5-pro-32k", "p_in": 0.80, "p_out": 2.00},
+            {"model": "doubao-1.5-pro-256k", "p_in": 6.00, "p_out": 9.00},
+            {"model": "doubao-1.5-lite-32k", "p_in": 0.30, "p_out": 0.60},
+            {"model": "doubao-1.5-lite-256k", "p_in": 2.00, "p_out": 3.00},
+            {"model": "doubao-pro-256k", "p_in": 5.00, "p_out": 9.00},
+            {"model": "doubao-pro-128k", "p_in": 4.00, "p_out": 8.00},
+            {"model": "doubao-pro-64k", "p_in": 3.00, "p_out": 7.00},
+            {"model": "doubao-lite-128k", "p_in": 1.00, "p_out": 2.00},
+            {"model": "deepseek-v3", "p_in": 2.00, "p_out": 8.00},
+            {"model": "deepseek-r1", "p_in": 4.00, "p_out": 16.00},
+            {"model": "kimi-k2", "p_in": 4.00, "p_out": 16.00},
+            {"model": "qwen-max", "p_in": 20.00, "p_out": 60.00},
+            {"model": "qwen-plus", "p_in": 4.00, "p_out": 12.00},
+            {"model": "qwen-turbo", "p_in": 2.00, "p_out": 6.00},
+            {"model": "glm-4.5", "p_in": 2.00, "p_out": 6.00},
+            {"model": "glm-4-plus", "p_in": 50.00, "p_out": 50.00},
+            {"model": "glm-4-flash", "p_in": 0.10, "p_out": 0.10},
+            {"model": "gpt-4o", "p_in": 17.50, "p_out": 70.00},
+            {"model": "gpt-4o-mini", "p_in": 1.00, "p_out": 4.00},
+            {"model": "claude-3-7-sonnet", "p_in": 21.00, "p_out": 105.00},
+            {"model": "claude-3-5-sonnet", "p_in": 21.00, "p_out": 105.00},
+        ],
+    },
 }
 
 def load_config() -> dict:
@@ -362,11 +390,15 @@ class FluidDialog(QWidget):
             Qt.FramelessWindowHint | Qt.Dialog | Qt.Tool
         )
         self.setAttribute(Qt.WA_TranslucentBackground)
-        self.setFixedSize(width, height)
+        # 高度不写死: 由内容撑满, 避免文字/链接/按钮超出后被裁剪
+        # (固定尺寸会禁止重排布局, 造成"移一下窗口文字才显示"). 宽度仍由调用方指定.
+        self.setMinimumWidth(width)
+        self.resize(width, height)
+        self._autosized = False
 
-        # 外层（留阴影边距）
+        # 外层（留阴影边距: 阴影 blur=36 offset(0,6), 需 ≥42px 透明余量才不会被裁剪）
         outer = QVBoxLayout(self)
-        outer.setContentsMargins(12, 12, 12, 12)
+        outer.setContentsMargins(38, 38, 38, 44)
         outer.setSpacing(0)
 
         # body
@@ -377,12 +409,16 @@ class FluidDialog(QWidget):
         body.setSpacing(16)
         outer.addWidget(self.body)
 
-        # 阴影
+        # 阴影: 阴影必须挂在「真正作画」的 body 上才会渲染 (阴影按 body 像素的 alpha 求轮廓),
+        # 而 body 用 self._body_paint 自绘圆角深色+光晕, 窗口本层保持透明只留阴影边距.
         shadow = QGraphicsDropShadowEffect(self)
         shadow.setBlurRadius(36)
         shadow.setOffset(0, 6)
-        shadow.setColor(QColor(8, 8, 12, 130))
+        shadow.setColor(QColor(8, 8, 12, 150))
         self.body.setGraphicsEffect(shadow)
+        self.body.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.body.setAutoFillBackground(False)
+        self.body.paintEvent = self._body_paint
 
         # 顶栏
         top = QHBoxLayout()
@@ -459,13 +495,13 @@ class FluidDialog(QWidget):
         if ev.key() == Qt.Key_Escape:
             self.reject()
 
-    def paintEvent(self, ev):
-        """暗色流体底面 + 左上紫光晕 + 顶部高光"""
-        p = QPainter(self)
+    def _body_paint(self, ev):
+        """在 body 自己上面暗色流体底面 (阴影挂在这个 widget 上, 跟着它一起走)."""
+        p = QPainter(self.body)
         p.setRenderHint(QPainter.Antialiasing)
-        rect = self.body.geometry()
+        rect = QRectF(0, 0, self.body.width(), self.body.height())
         path = QPainterPath()
-        path.addRoundedRect(rect.x(), rect.y(), rect.width(), rect.height(), 28, 28)
+        path.addRoundedRect(rect, 28, 28)
 
         p.fillPath(path, QColor(T["bg"]))
 
@@ -484,6 +520,66 @@ class FluidDialog(QWidget):
         pen.setWidthF(1.0)
         p.setPen(pen)
         p.drawPath(path)
+        p.end()
+
+    def paintEvent(self, ev):
+        # 窗口本层保持透明(只留阴影边距), 圆角底面由 body 自绘
+        pass
+
+    def showEvent(self, ev):
+        super().showEvent(ev)
+        # 首次显示后按内容撑满高度, 避免文字被遮挡/须移动才显示.
+        if not self._autosized:
+            self._autosized = True
+            QTimer.singleShot(0, self._fit_content)
+
+    def _fit_content(self):
+        # 按内容撑满: 结合子控件 heightForWidth(对自动换行 QLabel 有效), 递归算出所需高度,
+        # 取 max(窗口当前高, 所需高) —— 只会长高, 绝不缩水, 保证文字/链接/按钮不被裁剪.
+        lay = self.layout()
+        lay.activate()
+        out = lay.contentsMargins()
+        bl = self.body.layout()
+        bl.activate()
+
+        def wneed(w):
+            try:
+                v = w.heightForWidth(w.width()) if hasattr(w, "heightForWidth") else 0
+                if v and v > 0:
+                    return v
+            except Exception:
+                pass
+            try:
+                return w.sizeHint().height()
+            except Exception:
+                return 0
+
+        def lneed(l):
+            if l is None:
+                return 0
+            mg = l.contentsMargins()
+            total = mg.top() + mg.bottom()
+            sp = l.spacing()
+            first = True
+            for i in range(l.count()):
+                it = l.itemAt(i)
+                if it is None or it.spacerItem():
+                    continue
+                if it.widget() is not None:
+                    h = wneed(it.widget())
+                elif it.layout() is not None:
+                    h = lneed(it.layout())
+                else:
+                    continue
+                if not first and sp >= 0:
+                    total += sp
+                total += h
+                first = False
+            return total
+
+        want = lneed(bl) + out.top() + out.bottom()
+        self.resize(self.width(), max(self.height(), want))
+        self.update()
 
     # 子类按需重写这两个
     def accept(self):
@@ -2417,10 +2513,458 @@ class PillButton(QToolButton):
             }}
         """)
 
+# ============================================================
+# Token / 模型 / 费用 组件
+# ============================================================
 
-# ============================================================
-# 主窗口
-# ============================================================
+def _tok_price(model: str, prices: list) -> dict:
+    """按模型名取内置价格表条目; 找不到时给一个默认价, 保证费用计算永不挂."""
+    for p in (prices or []):
+        if isinstance(p, dict) and p.get("model") == model:
+            return p
+    return {"model": model, "p_in": 0.80, "p_out": 2.00}
+
+def _tok_cost(prompt: float, completion: float, price: dict) -> float:
+    """按 元/1K token 价格估算费用: prompt/1K*in + completion/1K*out."""
+    return max(0.0, prompt) / 1000.0 * float(price.get("p_in", 0) or 0) \
+         + max(0.0, completion) / 1000.0 * float(price.get("p_out", 0) or 0)
+
+def _tok_sum(projects: dict) -> tuple:
+    """返回所有项目的累计 (prompt, completion)."""
+    tp = tc = 0
+    for item in (projects or {}).values():
+        if isinstance(item, dict):
+            tp += int(item.get("prompt", 0) or 0)
+            tc += int(item.get("completion", 0) or 0)
+    return tp, tc
+
+
+# 内置候选模型 (手动切换模型时的下拉选项; 编辑价格表可自由增删)
+MODEL_PRESET = [
+    # 豆包 (火山方舟)
+    "doubao-seed-1.6",
+    "doubao-1.5-pro-256k",
+    "doubao-1.5-pro-32k",
+    "doubao-1.5-lite-256k",
+    "doubao-1.5-lite-32k",
+    "doubao-pro-256k",
+    "doubao-pro-128k",
+    "doubao-pro-64k",
+    "doubao-lite-128k",
+    # 深度求索
+    "deepseek-v3-0324",
+    "deepseek-v3",
+    "deepseek-r1",
+    # Kimi / 月之暗面
+    "kimi-k2",
+    "kimi-k1.5",
+    # 通义千问
+    "qwen-max",
+    "qwen-plus",
+    "qwen-turbo",
+    "qwen2.5-max",
+    "qwen2.5-72b",
+    "qwen1.5-110b",
+    # 智谱
+    "glm-4.5",
+    "glm-4-plus",
+    "glm-4",
+    "glm-4-flash",
+    # 百度文心
+    "ernie-4.0",
+    "ernie-3.5",
+    # OpenAI
+    "gpt-4o",
+    "gpt-4o-mini",
+    "gpt-4-turbo",
+    "o3",
+    "o4-mini",
+    # Anthropic
+    "claude-sonnet-4",
+    "claude-3-7-sonnet",
+    "claude-3-5-sonnet",
+]
+
+# 联网爬取费用表的兜底端点 (可被 OCT 换成任何返回 {"prices":[{model,p_in,p_out}]} 的 JSON 源)
+PRICE_SOURCE_URL = "https://raw.githubusercontent.com/HZDavy/PlanMonitor/main/token_prices.json"
+
+# 依次兜底的备用端点: 提高「线上价格能读到」的成功率, 全部失败再由内置全量表读取.
+PRICE_SOURCE_FALLBACKS = [
+    "https://raw.githubusercontent.com/HZDavy/PlanMonitor/master/token_prices.json",
+    "https://raw.githubusercontent.com/HZDavy/PlanMonitor/main/token_prices.json",
+]
+
+
+def _parse_prices(data: dict) -> list:
+    out = []
+    for item in ((data or {}).get("prices") or []):
+        m = (item.get("model") or "").strip()
+        if not m:
+            continue
+        out.append({
+            "model": m,
+            "p_in": float(item.get("p_in", 0) or 0),
+            "p_out": float(item.get("p_out", 0) or 0),
+        })
+    return out
+
+
+def fetch_web_prices() -> list:
+    """尽力联网获取费用表, 失败返回 None, 由调用方回退到内置全量价格表."""
+    urls = [PRICE_SOURCE_URL] + [u for u in PRICE_SOURCE_FALLBACKS if u != PRICE_SOURCE_URL]
+    last = None
+    for url in urls:
+        try:
+            r = requests.get(url, timeout=8)
+            r.raise_for_status()
+            out = _parse_prices(r.json())
+            if out:
+                return out
+        except Exception as e:
+            last = e
+    return None
+
+
+class PriceDialog(FluidDialog):
+    """内置价格表编辑器: 每行 `模型名 <in价(元/1K)> <out价(元/1K)>`, 可自由增删行."""
+
+    def __init__(self, cfg: dict, parent=None):
+        super().__init__("价格表设置", width=520, height=580, parent=parent)
+        self.cfg = cfg
+        self._result = False
+        self.tok = cfg.setdefault("token", {})
+        self.tok.setdefault("prices", DEFAULT_CONFIG["token"]["prices"])
+
+        # 内容
+        tip = QLabel("每模型一行：模型名  输入价(元/1K)  输出价(元/1K)\n修改后点击下方“保存”")
+        tip.setStyleSheet(
+            f"color: {T['fg3']}; font-family: '{FONT_FAMILY}'; font-size: {px(12)}px;"
+        )
+        self.content_layout.addWidget(tip)
+
+        self.edit = QTextEdit()
+        self.edit.setAcceptRichText(False)
+        self.edit.setMinimumHeight(px(300))
+        self.edit.setStyleSheet("""
+            QTextEdit {
+                background: #141417; color: #e6e8ef;
+                border: 1px solid #2a2a32; border-radius: 10px;
+                selection-background-color: #e8eaf2;
+                font-family: Consolas, 'Microsoft YaHei UI';
+                font-size: 14px; padding: 8px;
+            }
+        """)
+        self.content_layout.addWidget(self.edit)
+
+        # 预填当前行
+        lines = []
+        for p in (self.tok.get("prices") or []):
+            lines.append(f"{p.get('model','')}\t{p.get('p_in',0)}\t{p.get('p_out',0)}")
+        self.edit.setPlainText("\n".join(lines))
+
+        # footer
+        save_btn = QToolButton()
+        save_btn.setText("保存")
+        save_btn.setCursor(QCursor(Qt.PointingHandCursor))
+        save_btn.setFixedHeight(38)
+        save_btn.setStyleSheet(f"""
+            QToolButton {{
+                background: #ffffff; color: #101014; border: none; border-radius: 19px;
+                font-family: '{FONT_FAMILY}'; font-size: {px(14)}px; font-weight: 600;
+                padding: 0 24px;
+            }}
+            QToolButton:hover {{ background: #ccccd6; }}
+        """)
+        save_btn.clicked.connect(self._save)
+        self.footer_layout.addWidget(save_btn)
+        self.footer_layout.addStretch(1)
+
+    def _save(self):
+        rows = []
+        for raw in self.edit.toPlainText().splitlines():
+            raw = raw.strip()
+            if not raw:
+                continue
+            parts = raw.replace(",", " ").replace("，", " ").split()
+            if len(parts) < 3:
+                continue
+            try:
+                rows.append({"model": parts[0],
+                             "p_in": float(parts[1]),
+                             "p_out": float(parts[2])})
+            except (TypeError, ValueError):
+                continue
+        self.tok["prices"] = rows
+        self._result = True
+        self.accept()
+
+    def save_ok(self) -> bool:
+        return self._result
+
+
+def _mk_pill(text: str, primary: bool):
+    """自绘胶囊按钮 (FluidDialog footer 通用)."""
+    b = QToolButton()
+    b.setText(text)
+    b.setCursor(QCursor(Qt.PointingHandCursor))
+    b.setMinimumHeight(px(48))
+    if primary:
+        bg, fg, hover_bg = "#ffffff", "#0a0a0c", "#e8eaf2"
+    else:
+        bg, fg, hover_bg = T["card"], T["fg2"], T["card_hover"]
+    b.setStyleSheet(f"""
+        QToolButton {{
+            background: {bg};
+            border: 1px solid transparent;
+            border-radius: 20px;
+            color: {fg};
+            padding: 0 {px(28)}px;
+            font-family: '{FONT_FAMILY}';
+            font-size: {px(16)}px;
+            font-weight: 600;
+        }}
+        QToolButton:hover {{
+            background: {hover_bg};
+            color: {T['fg'] if not primary else '#0a0a0c'};
+        }}
+    """)
+    return b
+
+
+def _mk_field_style(ff: str) -> str:
+    return f"""
+        background: {T['card']}; color: {T['fg']};
+        border: 1px solid {T['card_stroke']}; border-radius: 12px;
+        padding: 0 12px;
+        font-family: '{ff}'; font-size: {px(16)}px;
+        min-height: {px(44)}px;
+    """
+
+
+class AddTokensDialog(FluidDialog):
+    """「记入消耗」自绘对话框: 输入 Token 两栏, 替代系统 QInputDialog (修复闪退+统一风格)."""
+
+    def __init__(self, parent=None):
+        super().__init__("记入消耗", width=px(380), height=px(330), parent=parent)
+        ff = FONT_FAMILY
+        tip = QLabel("本次调用实际消耗的 Token 数")
+        tip.setStyleSheet(f"color: {T['fg3']}; font-family: '{ff}'; font-size: {px(13)}px;")
+        self.content_layout.addWidget(tip)
+
+        def make_box():
+            s = QSpinBox()
+            s.setRange(0, 2147483647)
+            s.setSingleStep(100)
+            s.setStyleSheet(f"""
+                QSpinBox {{ {_mk_field_style(ff)}
+                    selection-background-color: {T['accent']}; }}
+                QSpinBox::up-button, QSpinBox::down-button {{ width: 0px; border: none; background: transparent; }}
+            """)
+            return s
+
+        def make_row(label, box):
+            lab = QLabel(label)
+            lab.setStyleSheet(f"color: {T['fg']}; font-family: '{ff}'; font-size: {px(15)}px;")
+            row = QHBoxLayout()
+            row.setSpacing(px(12))
+            row.addWidget(lab)
+            row.addWidget(box, 1)
+            self.content_layout.addLayout(row)
+            return box
+
+        self._in = make_row("输入 Token", make_box())
+        self._out = make_row("输出 Token", make_box())
+        self.content_layout.addStretch(1)
+
+        self._result = None
+        cancel = _mk_pill("取消", False)
+        cancel.clicked.connect(self.reject)
+        ok = _mk_pill("确定", True)
+        ok.clicked.connect(self._ok)
+        self.footer_layout.addStretch(1)
+        self.footer_layout.addWidget(cancel)
+        self.footer_layout.addWidget(ok)
+
+    def _ok(self):
+        self._result = (int(self._in.value()), int(self._out.value()))
+        self.accept()
+
+
+class TextInputDialog(FluidDialog):
+    """单行文本自绘输入框 (新建项目等), 替代系统 QInputDialog.getText."""
+
+    def __init__(self, title: str, label: str, parent=None, placeholder: str = ""):
+        super().__init__(title, width=px(380), height=px(280), parent=parent)
+        ff = FONT_FAMILY
+        lab = QLabel(label)
+        lab.setStyleSheet(f"color: {T['fg']}; font-family: '{ff}'; font-size: {px(15)}px;")
+        self.content_layout.addWidget(lab)
+
+        self._edit = QLineEdit()
+        self._edit.setPlaceholderText(placeholder)
+        self._edit.setStyleSheet(f"""
+            QLineEdit {{ {_mk_field_style(ff)}
+                selection-background-color: {T['accent']}; }}
+            QLineEdit:focus {{ border: 1px solid rgba(155,138,255,0.65); }}
+        """)
+        self.content_layout.addWidget(self._edit)
+        self.content_layout.addStretch(1)
+
+        self._result = None
+        cancel = _mk_pill("取消", False)
+        cancel.clicked.connect(self.reject)
+        ok = _mk_pill("确定", True)
+        ok.clicked.connect(self._ok)
+        self.footer_layout.addStretch(1)
+        self.footer_layout.addWidget(cancel)
+        self.footer_layout.addWidget(ok)
+
+    def _ok(self):
+        self._result = self._edit.text().strip()
+        self.accept()
+
+
+class ModelPickDialog(FluidDialog):
+    """模型选择自绘对话框 (可编辑下拉), 替代系统 QInputDialog.getItem."""
+
+    def __init__(self, names, current: int, parent=None):
+        super().__init__("切换模型", width=px(420), height=px(300), parent=parent)
+        ff = FONT_FAMILY
+        lab = QLabel("当前调用模型 (可输入自定义模型名)")
+        lab.setStyleSheet(f"color: {T['fg3']}; font-family: '{ff}'; font-size: {px(13)}px;")
+        self.content_layout.addWidget(lab)
+
+        self._combo = QComboBox()
+        self._combo.setEditable(True)
+        self._combo.addItems(names)
+        if names and 0 <= current < len(names):
+            self._combo.setCurrentIndex(current)
+        self._combo.setStyleSheet(f"""
+            QComboBox {{ {_mk_field_style(ff)} }}
+            QComboBox::drop-down {{ border: none; width: {px(30)}px; }}
+            QComboBox::down-arrow {{
+                image: none;
+                border-left: 5px solid transparent; border-right: 5px solid transparent;
+                border-top: 6px solid {T['fg2']};
+            }}
+            QComboBox QAbstractItemView {{
+                background: {T['card']}; color: {T['fg']};
+                border: 1px solid {T['card_stroke']}; border-radius: 8px;
+                selection-background-color: {T['accent']}; selection-color: #0a0a0c;
+                outline: 0;
+            }}
+        """)
+        self.content_layout.addWidget(self._combo)
+        self.content_layout.addStretch(1)
+
+        self._result = None
+        cancel = _mk_pill("取消", False)
+        cancel.clicked.connect(self.reject)
+        ok = _mk_pill("确定", True)
+        ok.clicked.connect(self._ok)
+        self.footer_layout.addStretch(1)
+        self.footer_layout.addWidget(cancel)
+        self.footer_layout.addWidget(ok)
+
+    def _ok(self):
+        self._result = self._combo.currentText().strip()
+        self.accept()
+
+
+def parse_usage_text(text: str):
+    """从 API 响应/USAGE JSON 文本解析 (prompt_tokens, completion_tokens).
+
+    支持: 整段 response(内嵌 usage)、纯 usage JSON、或含 prompt_tokens/completion_tokens 的文本。
+    解析不出来返回 None.
+    """
+    if not text or not text.strip():
+        return None
+    t = text.strip()
+    obj = None
+    try:
+        obj = json.loads(t)
+    except Exception:
+        obj = None
+    if isinstance(obj, dict):
+        src = obj.get("usage") if isinstance(obj.get("usage"), dict) else obj
+        p = c = None
+        for k in ("prompt_tokens", "promptToken", "input_tokens"):
+            v = src.get(k)
+            if isinstance(v, int):
+                p = v
+                break
+        for k in ("completion_tokens", "completionToken", "output_tokens"):
+            v = src.get(k)
+            if isinstance(v, int):
+                c = v
+                break
+        if isinstance(p, int) and isinstance(c, int):
+            return (p, c)
+    import re
+    for pkey in ("prompt_tokens", "promptToken", "input_tokens"):
+        m = re.search(r'"' + pkey + r'"\s*:\s*(\d+)', t)
+        if m:
+            p = int(m.group(1))
+            break
+    else:
+        p = None
+    for ckey in ("completion_tokens", "completionToken", "output_tokens"):
+        m = re.search(r'"' + ckey + r'"\s*:\s*(\d+)', t)
+        if m:
+            c = int(m.group(1))
+            break
+    else:
+        c = None
+    if isinstance(p, int) and isinstance(c, int):
+        return (p, c)
+    return None
+
+
+class UsageImportDialog(FluidDialog):
+    """「计入响应 Usage」自绘对话框: 粘贴 API 响应里的 usage(JSON), 解析并计入本项目."""
+
+    def __init__(self, parent=None):
+        super().__init__("计入响应 Usage", width=px(560), height=px(400), parent=parent)
+        ff = FONT_FAMILY
+        tip = QLabel(
+            "粘贴火山方舟/OpenAI 兼容 API 返回的 usage (JSON), 自动解析输入/输出 token 并计入本项目。\n"
+            "可直接粘贴整段 response, 或仅 usage 对象, 例如:\n"
+            "{\"usage\": {\"prompt_tokens\": 952, \"completion_tokens\": 433, \"total_tokens\": 1385}}"
+        )
+        tip.setStyleSheet(f"color: {T['fg3']}; font-family: '{ff}'; font-size: {px(13)}px;")
+        tip.setWordWrap(True)
+        self.content_layout.addWidget(tip)
+
+        self._edit = QTextEdit()
+        self._edit.setAcceptRichText(False)
+        self._edit.setPlaceholderText("在此粘贴 usage JSON ...")
+        self._edit.setStyleSheet(f"""
+            QTextEdit {{ {_mk_field_style(ff).replace('min-height', 'height')}
+                min-height: {px(150)}px;
+                selection-background-color: {T['accent']}; }}
+        """)
+        self.content_layout.addWidget(self._edit, 1)
+
+        self._result = None
+        cancel = _mk_pill("取消", False)
+        cancel.clicked.connect(self.reject)
+        ok = _mk_pill("计入", True)
+        ok.clicked.connect(self._ok)
+        self.footer_layout.addStretch(1)
+        self.footer_layout.addWidget(cancel)
+        self.footer_layout.addWidget(ok)
+
+    def _ok(self):
+        self._result = parse_usage_text(self._edit.toPlainText())
+        if self._result is None:
+            InfoDialog(
+                "计入响应 Usage",
+                "无法从粘贴内容解析出 prompt_tokens / completion_tokens，请检查后重试。",
+                self,
+            ).exec_()
+            return
+        self.accept()
+
 
 class FluidWindow(QWidget):
     def __init__(self):
